@@ -32,6 +32,8 @@ interface MasterState {
   load: () => Promise<void>
   /** サンプルマスタで置き換えて保存する */
   loadSample: () => Promise<void>
+  /** 編集・取り込みしたマスタを保存する（以後サンプルの入れ替えはしない） */
+  save: (rows: unknown[]) => Promise<void>
 }
 
 /** 行データからマスタと派生値（mAs 系列・撮影距離の選択肢）をまとめて作り直す */
@@ -56,6 +58,12 @@ export const useMasterStore = create<MasterState>((set, get) => ({
     } else {
       set({ status: 'ready', source: 'saved', ...derive(saved) })
     }
+  },
+
+  save: async (rows) => {
+    await getStorage().set(MASTER_KEY, rows)
+    await getStorage().set(SAMPLE_VERSION_KEY, 'imported')
+    set({ status: 'ready', source: 'saved', ...derive(rows) })
   },
 
   loadSample: async () => {

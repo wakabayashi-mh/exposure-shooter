@@ -1,8 +1,9 @@
 import Phaser from 'phaser'
-import { DIFFICULTIES, EXPOSURE, FEEDBACK, MODES, REVIEW_SPAWN_INTERVAL_SEC, STAGE } from '../logic/constants'
+import { DIFFICULTIES, EXPOSURE, MODES, REVIEW_SPAWN_INTERVAL_SEC, STAGE } from '../logic/constants'
 import { EXPOSURE_IDLE, prepProgress, press, release, tick, type ExposureState } from '../logic/exposure'
 import { DEVIATION_LABELS, judge, resolveTolerance, type ExposureInput, type JudgeResult } from '../logic/judge'
 import type { Condition } from '../logic/master'
+import type { GameSettings } from '../logic/settings'
 import { applyBreach, applyShot, createSession, type SessionState } from '../logic/session'
 import { hardSpawnIntervalSec, pickHardEnemy, toleranceFor } from '../logic/modes'
 import { pickEnemy, rollLowTarget } from '../logic/spawn'
@@ -18,6 +19,8 @@ export interface GameSceneData {
   masSeries: number[]
   stageName: string
   modeLabel: string
+  /** 設定画面の値（プレイの開始時点のもの） */
+  settings: GameSettings
 }
 
 /** キャラの大きさ（z = 1 のとき）。足元が原点 */
@@ -137,6 +140,11 @@ export class GameScene extends Phaser.Scene {
     this.charactersReady = true
   }
 
+  /** 準備時間は設定から、管球負荷までの時間は固定 */
+  private timing() {
+    return { prepMs: this.stage.settings.prepMs, overholdMs: EXPOSURE.overholdMs }
+  }
+
   // ─── React から呼ばれる入力 ─────────────────────────────
 
   /** カーソル位置（基準解像度の座標）。キャンバスの外やパネルの上なら null */
@@ -185,12 +193,11 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     if (this.ended) return
-    const cfg = DIFFICULTIES[this.stage.config.difficulty]
     const mode = this.stage.config.mode
     this.realMs += delta
 
     // ロックオン中はスロー（敵の接近・出現・床の流れ）。曝射スイッチと制限時間は実時間
-    const gameDt = (delta / 1000) * (this.locked ? cfg.slowFactor : 1)
+    const gameDt = (delta / 1000) * (this.locked ? this.stage.settings.slowFactor[this.stage.config.difficulty] : 1)
 
     this.floorOffset = (this.floorOffset + gameDt * 1.6) % 1
     drawFloor(this.floor, this.floorOffset)
@@ -216,7 +223,7 @@ export class GameScene extends Phaser.Scene {
     this.updateHover()
 
     const prevPhase = this.exposure.phase
-    const r = tick(this.exposure, delta, EXPOSURE)
+    const r = tick(this.exposure, delta, this.timing())
     this.exposure = r.state
     if (r.event === 'overheat') usePlayStore.getState().showToast('管球負荷：準備を解除しました')
     if (prevPhase !== 'idle' && !this.locked) {
@@ -392,7 +399,7 @@ export class GameScene extends Phaser.Scene {
     const { mode, difficulty } = this.stage.config
     const { params } = usePlayStore.getState()
     const input: ExposureInput = { ...params }
-    const tol = resolveTolerance(target.cond, toleranceFor(mode, difficulty))
+    const tol = resolveTolerance(target.cond, toleranceFor(mode, difficulty, this.stage.settings.tolerance))
     const result = judge(target.cond, input, tol, this.stage.masSeries)
 
     const before = this.session.score
@@ -496,7 +503,7 @@ export class GameScene extends Phaser.Scene {
     const bx = Phaser.Math.Clamp(b.centerX - W / 2, 10, 970 - W)
     const by = Phaser.Math.Clamp(b.y - H - 12, 56, DEFENSE_Y - H - 4)
     bubble.setPosition(bx, by)
-    this.time.delayedCall(FEEDBACK.missBubbleMs, () =>
+    this.time.delayedCall(this.stage.settings.missBubbleMs, () =>
       this.tweens.add({ targets: bubble, alpha: 0, duration: 250, onComplete: () => bubble.destroy() }),
     )
   }
@@ -527,7 +534,7 @@ export class GameScene extends Phaser.Scene {
           fixed: this.exposure.phase !== 'idle',
         }
       : null
-    const exposure = { phase: this.exposure.phase, progress: prepProgress(this.exposure, EXPOSURE) }
+    const exposure = { phase: this.exposure.phase, progress: prepProgress(this.exposure, this.timing()) }
     const s = this.session
     // 変化があったときだけ React に流す
     const key = JSON.stringify([clock, s.lives, s.score, s.combo, target?.condition.id, target?.remainingSec, target?.fixed, exposure])

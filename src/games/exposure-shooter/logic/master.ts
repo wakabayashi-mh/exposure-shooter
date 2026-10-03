@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { validateRows, type RowError } from '../../../core/data/validateRows'
 
+// 検証エラーのメッセージを日本語にする（取り込み結果やエディタに出すため）
+z.config(z.locales.ja())
+
 /** ステージ振り分け用の大分類（SPEC 4.1）。並び順はスタンダードモードのステージ順 */
 export const REGIONS = [
   'chest_abdomen',

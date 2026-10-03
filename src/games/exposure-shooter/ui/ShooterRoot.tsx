@@ -1,19 +1,26 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { create } from 'zustand'
+import { appendHistory } from '../../../core/history/history'
+import { currentProfile } from '../../../core/profile/profileStore'
 import { useBestStore } from '../bestStore'
+import type { PlayLog } from '../logic/historyStats'
+import { useRankingStore, type RankIn } from '../rankingStore'
 import { useDexStore } from '../dexStore'
 import type { Difficulty } from '../logic/constants'
 import type { PlayConfig, PlayResult } from '../playConfig'
 import { CharacterDexScreen } from './CharacterDexScreen'
-import { MasterListScreen } from './MasterListScreen'
+import { HistoryScreen } from './HistoryScreen'
+import { MasterEditorScreen } from './MasterEditorScreen'
 import { ModeSelectScreen } from './ModeSelectScreen'
+import { RankingScreen } from './RankingScreen'
 import { ResultScreen } from './ResultScreen'
+import { SettingsScreen } from './SettingsScreen'
 import { StageSelectScreen } from './StageSelectScreen'
 
 // Phaser は大きいので、プレイ画面を開いたときに読み込む
 const PlayScreen = lazy(() => import('./PlayScreen').then((m) => ({ default: m.PlayScreen })))
 
-type Screen = 'mode' | 'stage' | 'play' | 'result' | 'master' | 'dex'
+type Screen = 'mode' | 'stage' | 'play' | 'result' | 'master' | 'dex' | 'ranking' | 'history' | 'settings'
 
 interface NavState {
   screen: Screen
@@ -22,6 +29,8 @@ interface NavState {
   config: PlayConfig | null
   /** 直前の結果でベストを更新したか */
   newBest: boolean
+  /** 直前の結果のランクイン */
+  rankIn: RankIn | null
   go: (screen: Screen) => void
   setDifficulty: (d: Difficulty) => void
   play: (config: PlayConfig) => void
@@ -32,6 +41,7 @@ const useNav = create<NavState>((set) => ({
   difficulty: 'standard',
   config: null,
   newBest: false,
+  rankIn: null,
   go: (screen) => set({ screen }),
   setDifficulty: (difficulty) => set({ difficulty }),
   play: (config) => set({ config, screen: 'play' }),
@@ -55,7 +65,7 @@ function useLandscapeReady() {
 
 /** 撮影条件シューティングの画面遷移（モード選択 → ステージ選択 → プレイ → 結果・復習） */
 export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickStart?: PlayConfig | null }) {
-  const { screen, difficulty, config, newBest, go, setDifficulty, play } = useNav()
+  const { screen, difficulty, config, newBest, rankIn, go, setDifficulty, play } = useNav()
   const loadBest = useBestStore((s) => s.load)
   const loadDex = useDexStore((s) => s.load)
   const landscape = useLandscapeReady()
@@ -73,16 +83,35 @@ export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickS
   }, [quickStart, landscape, play])
 
   const finish = async (result: PlayResult) => {
+    const profile = currentProfile()
     const better = await useBestStore.getState().submit(result)
     await useDexStore.getState().addFromRecords(result.session.records)
-    useNav.setState({ newBest: better, screen: 'result' })
+    const { config, status, session } = result
+    const log: PlayLog = {
+      at: new Date().toISOString(),
+      mode: config.mode,
+      difficulty: config.difficulty,
+      region: config.mode === 'hard' ? undefined : config.region,
+      status,
+      score: session.score,
+      records: session.records,
+    }
+    await appendHistory('exposure-shooter', profile.id, log)
+    const rankIn = await useRankingStore.getState().submit(result, profile)
+    useNav.setState({ newBest: better, rankIn, screen: 'result' })
   }
 
   switch (screen) {
     case 'stage':
       return <StageSelectScreen difficulty={difficulty} onPlay={play} onBack={() => go('mode')} />
     case 'master':
-      return <MasterListScreen onBack={() => go('mode')} />
+      return <MasterEditorScreen onBack={() => go('mode')} />
+    case 'ranking':
+      return <RankingScreen onBack={() => go('mode')} />
+    case 'history':
+      return <HistoryScreen onBack={() => go('mode')} />
+    case 'settings':
+      return <SettingsScreen onBack={() => go('mode')} />
     case 'dex':
       return <CharacterDexScreen onBack={() => go('mode')} />
     case 'play':
@@ -100,6 +129,7 @@ export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickS
       return (
         <ResultScreen
           newBest={newBest}
+          rankIn={rankIn}
           onPlay={play}
           onStageSelect={(mode) => go(mode === 'hard' ? 'mode' : 'stage')}
         />
@@ -111,8 +141,7 @@ export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickS
           onDifficulty={setDifficulty}
           onStandard={() => go('stage')}
           onPlay={play}
-          onMaster={() => go('master')}
-          onDex={() => go('dex')}
+          onNavigate={go}
           onBack={onExit}
         />
       )

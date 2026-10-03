@@ -4,9 +4,13 @@ import type { Condition } from './master'
 import type { EnemyRecord, SessionState } from './session'
 import { weightedPick, type Rng } from './spawn'
 
-/** 許容値。ハードモードは難易度にかかわらずハードの許容値を使う（SPEC 6.2） */
-export function toleranceFor(mode: Mode, difficulty: Difficulty): Tolerance {
-  const d = DIFFICULTIES[mode === 'hard' ? 'hard' : difficulty]
+/** 許容値。ハードモードは難易度にかかわらずハードの許容値を使う（SPEC 6.2）。table は設定画面の値 */
+export function toleranceFor(
+  mode: Mode,
+  difficulty: Difficulty,
+  table: Record<Difficulty, { kvTol: number; masTolSteps: number }> = DIFFICULTIES,
+): Tolerance {
+  const d = table[mode === 'hard' ? 'hard' : difficulty]
   return { kv: d.kvTol, masSteps: d.masTolSteps }
 }
 

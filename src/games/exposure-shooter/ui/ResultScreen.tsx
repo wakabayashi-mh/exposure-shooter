@@ -2,19 +2,28 @@ import type { Mode } from '../logic/constants'
 import { DEVIATION_LABELS } from '../logic/judge'
 import { missedIds, rankFor } from '../logic/modes'
 import { stageName, type PlayConfig } from '../playConfig'
+import { parseTableKey } from '../logic/rankingRules'
 import { usePlayStore } from '../playStore'
+import { useRankingStore, type RankIn } from '../rankingStore'
+import { RankingTable } from './RankingTable'
 
 /** 結果・復習画面（SPEC 9.2） */
 export function ResultScreen({
   newBest,
+  rankIn,
   onPlay,
   onStageSelect,
 }: {
   newBest: boolean
+  /** ランクインしたら、その表と順位 */
+  rankIn: RankIn | null
   onPlay: (config: PlayConfig) => void
   onStageSelect: (mode: Mode) => void
 }) {
   const result = usePlayStore((s) => s.lastResult)
+  const tables = useRankingStore((s) => s.tables)
+  const rename = useRankingStore((s) => s.rename)
+  const rankTable = rankIn ? parseTableKey(rankIn.tableKey) : null
   if (!result) return null
   const { config, session, status } = result
   const byId = new Map(result.conditions.map((c) => [c.id, c]))
@@ -44,7 +53,20 @@ export function ResultScreen({
         </div>
         {!hard && <div className={`rank rank-${rank}`}>{rank}</div>}
         {newBest && <div className="new-best">ベスト更新</div>}
+        {rankIn && <div className="new-record mono">NEW RECORD!　{rankIn.rank} 位</div>}
       </div>
+
+      {rankIn && rankTable && (
+        <section className="result-ranking">
+          <h2>ハイスコア（名前はその場で直せます）</h2>
+          <RankingTable
+            table={rankTable}
+            entries={tables[rankIn.tableKey] ?? []}
+            highlightId={rankIn.entryId}
+            onRename={(name) => void rename(rankIn.tableKey, rankIn.entryId, name)}
+          />
+        </section>
+      )}
 
       <div className="result-stats">
         {hard ? (

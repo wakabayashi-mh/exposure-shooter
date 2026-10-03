@@ -1,10 +1,11 @@
 import Phaser from 'phaser'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CONTROLS, KV_DIAL, MAS_INITIAL } from '../logic/constants'
+import { KV_DIAL, MAS_INITIAL } from '../logic/constants'
 import { kvOptions } from '../logic/params'
 import { useMasterStore } from '../masterStore'
 import { buildPool, modeLabel, stageName, type PlayConfig, type PlayResult } from '../playConfig'
 import { usePlayStore } from '../playStore'
+import { useSettingsStore } from '../settingsStore'
 import { GameScene, type GameSceneData } from '../scenes/GameScene'
 import { GAME_HEIGHT, GAME_WIDTH } from '../scenes/projection'
 import { ControlPanel, TargetPanel, Toast, TopBar } from './Hud'
@@ -29,6 +30,8 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
   const gameRef = useRef<Phaser.Game | null>(null)
   const scale = useStageScale()
   const status = usePlayStore((s) => s.status)
+  // 設定はプレイの開始時点の値を使う（プレイ中は変わらない）
+  const [settings] = useState(() => useSettingsStore.getState().settings)
 
   const sceneData = useMemo<GameSceneData>(
     () => ({
@@ -37,8 +40,9 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
       masSeries: master.mas.series,
       stageName: stageName(config),
       modeLabel: modeLabel(config),
+      settings,
     }),
-    [config, master.conditions, master.mas.series],
+    [config, master.conditions, master.mas.series, settings],
   )
 
   // 終わったら少し見せてから結果画面へ
@@ -56,10 +60,10 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
   // ダイヤルの選択肢（前回の値は保持する）
   useEffect(() => {
     usePlayStore.getState().setOptions(
-      { kv: kvOptions(KV_DIAL.min, KV_DIAL.max, KV_DIAL.step), mas: master.mas.series, sid: master.sid.options },
+      { kv: kvOptions(KV_DIAL.min, KV_DIAL.max, settings.kvStep), mas: master.mas.series, sid: master.sid.options },
       { kv: KV_DIAL.initial, mas: MAS_INITIAL, sid: master.sid.initial },
     )
-  }, [master.mas.series, master.sid])
+  }, [master.mas.series, master.sid, settings.kvStep])
 
   // Phaser の起動と破棄
   useEffect(() => {
@@ -118,7 +122,7 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
         return
       }
       if (e.button === 0) scene()?.pressTrigger()
-      if (e.button === 2 || (e.button === 1 && CONTROLS.middleButtonCycles)) {
+      if (e.button === 2 || (e.button === 1 && settings.middleButtonCycles)) {
         e.preventDefault()
         usePlayStore.getState().cycleSelected()
       }
@@ -156,11 +160,11 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
       stage.removeEventListener('wheel', onWheel)
       stage.removeEventListener('contextmenu', onContext)
     }
-  }, [scale])
+  }, [scale, settings])
 
   // キーボード（補助操作）
   useEffect(() => {
-    const k = CONTROLS.keys
+    const k = settings.keys
     const dials: Record<string, ['kv' | 'mas' | 'sid', 1 | -1]> = {
       [k.kvUp]: ['kv', 1],
       [k.kvDown]: ['kv', -1],
@@ -190,7 +194,7 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
-  }, [])
+  }, [settings])
 
 
   return (

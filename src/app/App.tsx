@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
 import { create } from 'zustand'
+import { ProfileSwitcher } from '../core/profile/ProfileSwitcher'
+import { RankingAttract } from '../games/exposure-shooter/ui/RankingScreen'
 import type { PlayConfig } from '../games/exposure-shooter/playConfig'
 import { ShooterRoot } from '../games/exposure-shooter/ui/ShooterRoot'
 
@@ -21,10 +24,33 @@ export function App() {
   return <TitleScreen onSelect={go} />
 }
 
+/** タイトルで操作がないまま、この時間がたったらランキングを順に見せる（SPEC 10.1） */
+const ATTRACT_AFTER_MS = 15000
+
 /** シリーズ共通のゲーム選択（今は 1 作だけ） */
 function TitleScreen({ onSelect }: { onSelect: (s: Screen) => void }) {
+  const [attract, setAttract] = useState(false)
+  useEffect(() => {
+    let timer = setTimeout(() => setAttract(true), ATTRACT_AFTER_MS)
+    const wake = () => {
+      setAttract(false)
+      clearTimeout(timer)
+      timer = setTimeout(() => setAttract(true), ATTRACT_AFTER_MS)
+    }
+    const events = ['pointerdown', 'pointermove', 'keydown', 'wheel'] as const
+    events.forEach((e) => window.addEventListener(e, wake))
+    return () => {
+      clearTimeout(timer)
+      events.forEach((e) => window.removeEventListener(e, wake))
+    }
+  }, [])
+
   return (
     <div className="screen center title">
+      <div className="title-profile">
+        <ProfileSwitcher />
+      </div>
+      {attract && <RankingAttract />}
       <p className="series muted">放射線技師教育ゲームシリーズ</p>
       <div className="game-card">
         <h1>撮影条件シューティング</h1>
