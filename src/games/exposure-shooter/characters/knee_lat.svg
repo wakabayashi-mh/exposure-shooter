@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 膝関節側面：前方（画面左）。膝蓋骨＝片目（黒目）、関節裂隙＝にっこり口、大腿四頭筋腱＝眉、腓骨＝後方にうっすら、R マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+
+    <!-- 軟部組織：大腿〜膝〜下腿 -->
+    <path d="M70 14 H236 C240 90 244 150 240 200 C238 240 230 280 222 384 H92 C84 300 64 250 58 200 C54 150 62 90 70 14 Z" fill="#7f93a8" opacity="0.6"/>
+    <!-- 大腿骨（骨幹と顆部） -->
+    <path d="M126 14 H180 L184 140 C204 150 216 172 210 194 C204 210 184 216 152 214 C124 214 108 206 106 188 C104 168 114 150 124 140 Z" fill="#e8eef4" opacity="0.85"/>
+    <!-- 脛骨：上縁（プラトー）はくぼんだ形 -->
+    <path d="M110 226 Q152 248 206 226 C212 244 204 262 192 272 L186 384 H130 L126 272 C114 262 106 244 110 226 Z" fill="#e8eef4" opacity="0.85"/>
+    <!-- 腓骨：後方（画面右）にうっすら -->
+    <path d="M200 262 C212 260 220 268 216 284 L210 384 H196 L198 284 Z" fill="#e8eef4" opacity="0.35"/>
+    <!-- 膝蓋骨 -->
+    <ellipse cx="88" cy="176" rx="24" ry="34" fill="#e8eef4" opacity="0.95"/>
+    <!-- R マーカー -->
+    <rect x="244" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="261" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中：膝蓋骨の黒目、関節裂隙のにっこり -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 128 Q82 116 104 126" fill="none" stroke="#c4d1de" stroke-width="8"/>
+    <circle cx="84" cy="180" r="12" fill="#0f1826"/>
+    <circle cx="80" cy="175" r="4" fill="#ffffff"/>
+    <ellipse cx="100" cy="236" rx="14" ry="8" fill="#c96b7b" opacity="0.85"/>
+    <path d="M114 218 Q154 244 204 218" fill="none" stroke="#0f1826" stroke-width="8"/>
+  </g>
+
+  <!-- ロックオン -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 116 Q82 104 104 114" fill="none" stroke="#c4d1de" stroke-width="8"/>
+    <circle cx="86" cy="178" r="15" fill="#0f1826"/>
+    <circle cx="86" cy="178" r="6" fill="#e8eef4"/>
+    <ellipse cx="100" cy="240" rx="14" ry="8" fill="#c96b7b" opacity="0.95"/>
+    <ellipse cx="156" cy="222" rx="12" ry="9" fill="#0f1826"/>
+    <path d="M228 120 C218 136 218 148 228 150 C238 148 238 136 228 120 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 124 Q82 112 104 122" fill="none" stroke="#c4d1de" stroke-width="8"/>
+    <path d="M72 184 Q86 166 102 184" fill="none" stroke="#0f1826" stroke-width="8"/>
+    <ellipse cx="100" cy="232" rx="16" ry="9" fill="#c96b7b"/>
+    <path d="M116 216 Q156 262 202 216 Z" fill="#c96b7b" stroke="#0f1826" stroke-width="6"/>
+    <path d="M40 260 L46 276 L62 282 L46 288 L40 304 L34 288 L18 282 L34 276 Z" fill="#f5c56a"/>
+    <path d="M250 150 L254 160 L264 164 L254 168 L250 178 L246 168 L236 164 L246 160 Z" fill="#f5c56a"/>
+  </g>
+</svg>

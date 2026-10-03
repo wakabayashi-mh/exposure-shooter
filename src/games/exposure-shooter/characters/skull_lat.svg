@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 頭部側面：前方（画面左）。眼窩＝片目（白目）、トルコ鞍＝耳の穴のような丸いくぼみ、前頭洞＝おでこのキラリ、下顎骨＝あご、頭蓋の外板＝ヘルメット、L マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <!-- 頭蓋（ヘルメット） -->
+    <path d="M60 170 C52 90 110 30 180 34 C246 38 276 100 270 170 C266 220 246 256 220 270 L120 276 C90 264 64 230 60 170 Z" fill="#7f93a8" opacity="0.55" stroke="#e8eef4" stroke-width="12" stroke-opacity="0.8"/>
+    <!-- 前頭洞 -->
+    <path d="M70 120 C78 104 96 104 100 120 C96 132 80 134 70 120 Z" fill="#101b2b"/>
+    <!-- 眼窩 -->
+    <ellipse cx="96" cy="176" rx="34" ry="32" fill="#101b2b"/>
+    <!-- トルコ鞍 -->
+    <path d="M168 166 C168 196 206 196 206 166" fill="none" stroke="#e8eef4" stroke-width="7" opacity="0.85"/>
+    <circle cx="187" cy="174" r="11" fill="#101b2b"/>
+    <!-- 顔面骨と下顎骨 -->
+    <path d="M58 210 C60 250 70 290 96 300" fill="none" stroke="#e8eef4" stroke-width="10" opacity="0.6"/>
+    <path d="M90 310 C110 350 170 352 196 320 L210 262" fill="none" stroke="#e8eef4" stroke-width="14" opacity="0.8"/>
+    <!-- 頸椎（うっすら） -->
+    <g fill="#e8eef4" opacity="0.35"><rect x="214" y="290" width="34" height="24" rx="6"/><rect x="216" y="320" width="34" height="24" rx="6"/><rect x="218" y="350" width="34" height="24" rx="6"/></g>
+    <rect x="244" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="261" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">L</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="96" cy="178" rx="18.7" ry="22.099999999999998" fill="#e8eef4"/><circle cx="90.9" cy="182.25" r="9.35" fill="#0f1826"/><circle cx="94.30000000000001" cy="178" r="3.4" fill="#ffffff"/><ellipse cx="108" cy="236" rx="13.5" ry="8.1" fill="#c96b7b" opacity="0.85"/><path d="M100 312 Q122 325.2 144 312" fill="none" stroke="#e8eef4" stroke-width="8"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="96" cy="176" rx="22.099999999999998" ry="26.349999999999998" fill="#e8eef4"/><circle cx="96" cy="177.7" r="5.95" fill="#0f1826"/><ellipse cx="108" cy="238" rx="13.5" ry="8.1" fill="#c96b7b" opacity="1"/><ellipse cx="124" cy="316" rx="8.8" ry="11.200000000000001" fill="#0f1826" stroke="#e8eef4" stroke-width="4.800000000000001"/><path d="M240 90 C230 106 230 118 240 120 C250 118 250 106 240 90 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M82 186 Q96 166 110 186" fill="none" stroke="#e8eef4" stroke-width="8"/><ellipse cx="108" cy="232" rx="15" ry="9" fill="#c96b7b" opacity="1"/><path d="M94 304 Q122 336.2 150 304 Z" fill="#c96b7b" stroke="#e8eef4" stroke-width="5"/><path d="M84 96.6 L88.2 107.8 L99.4 112 L88.2 116.2 L84 127.4 L79.8 116.2 L68.6 112 L79.8 107.8 Z" fill="#f5c56a"/><path d="M258 316.8 L261.6 326.4 L271.2 330 L261.6 333.6 L258 343.2 L254.4 333.6 L244.8 330 L254.4 326.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

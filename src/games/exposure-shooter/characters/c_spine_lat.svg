@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 頸椎側面：前方（画面左）。C2 の歯突起を大きく立てて、その上に片目（黒目）。前に C1 前弓、後ろに C1 後弓。椎体の積み重ねが体、下顎＝帽子のつば、気管の暗い帯＝前側のよだれかけ、L マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <path d="M60 60 C120 40 220 44 262 90 L250 384 H90 C70 300 60 200 60 60 Z" fill="#7f93a8" opacity="0.6"/>
+    <!-- 頭蓋底（帽子）と下顎（つば） -->
+    <path d="M120 24 C170 14 240 24 266 58 C230 70 170 72 120 66 Z" fill="#e8eef4" opacity="0.5"/>
+    <path d="M28 130 C54 112 90 108 116 118" fill="none" stroke="#e8eef4" stroke-width="14" opacity="0.75"/>
+    <!-- 気管：前側の暗い帯 -->
+    <path d="M86 196 C80 250 84 310 96 384 H124 C112 310 108 250 112 196 Z" fill="#101b2b" opacity="0.9"/>
+    <!-- C1 前弓（歯突起の前）と後弓（後ろ） -->
+    <ellipse cx="130" cy="112" rx="13" ry="18" fill="#e8eef4" opacity="0.7"/>
+    <path d="M206 100 C230 96 252 104 256 120 C240 130 220 128 206 120 Z" fill="#e8eef4" opacity="0.5"/>
+    <!-- C2：椎体から歯突起が上へ突き出す（主役） -->
+    <path d="M140 196 L138 152 C138 144 146 140 152 138 L152 96 C152 74 186 74 186 96 L186 136 C196 138 206 144 206 152 L208 196 C190 204 156 204 140 196 Z" fill="#e8eef4" stroke="#0f1826" stroke-width="3"/>
+    <!-- C3〜C7 -->
+    <g fill="#e8eef4" opacity="0.75">
+      <rect x="138" y="210" width="68" height="28" rx="7"/><rect x="136" y="246" width="70" height="28" rx="7"/>
+      <rect x="136" y="282" width="72" height="28" rx="7"/><rect x="138" y="318" width="72" height="28" rx="7"/>
+      <rect x="142" y="354" width="70" height="26" rx="7"/>
+    </g>
+    <!-- 棘突起（後方＝画面右） -->
+    <g stroke="#e8eef4" stroke-width="10" opacity="0.4" fill="none">
+      <path d="M212 172 L250 184"/><path d="M210 226 L242 234"/><path d="M210 262 L240 270"/><path d="M212 298 L242 308"/><path d="M214 334 L246 346"/>
+    </g>
+    <rect x="244" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="261" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">L</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="166" cy="104" r="9.35" fill="#0f1826"/><circle cx="162.6" cy="99.75" r="3.4" fill="#ffffff"/><ellipse cx="156" cy="176" rx="10.5" ry="6.3" fill="#c96b7b" opacity="0.85"/><path d="M171 172 Q184 179.8 197 172" fill="none" stroke="#0f1826" stroke-width="6"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="166" cy="102" r="11.9" fill="#0f1826"/><circle cx="166" cy="102" r="4.25" fill="#e8eef4"/><ellipse cx="156" cy="178" rx="10.5" ry="6.3" fill="#c96b7b" opacity="1"/><ellipse cx="184" cy="176" rx="7" ry="9" fill="#0f1826"/><path d="M236 140 C226 156 226 168 236 170 C246 168 246 156 236 140 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M154.8 111.2 Q166 95.2 177.2 111.2" fill="none" stroke="#0f1826" stroke-width="6.4"/><ellipse cx="156" cy="174" rx="12" ry="7.2" fill="#c96b7b" opacity="1"/><path d="M168 168 Q184 186.4 200 168 Z" fill="#c96b7b" stroke="#0f1826" stroke-width="5"/><path d="M60 198 L66 214 L82 220 L66 226 L60 242 L54 226 L38 220 L54 214 Z" fill="#f5c56a"/><path d="M250 226.8 L253.6 236.4 L263.2 240 L253.6 243.6 L250 253.2 L246.4 243.6 L236.8 240 L246.4 236.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

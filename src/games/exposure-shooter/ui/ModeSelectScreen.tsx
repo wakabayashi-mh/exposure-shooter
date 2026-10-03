@@ -20,6 +20,7 @@ export function ModeSelectScreen({
   onStandard,
   onPlay,
   onMaster,
+  onDex,
   onBack,
 }: {
   difficulty: Difficulty
@@ -27,6 +28,7 @@ export function ModeSelectScreen({
   onStandard: () => void
   onPlay: (config: PlayConfig) => void
   onMaster: () => void
+  onDex: () => void
   onBack: () => void
 }) {
   const lastResult = usePlayStore((s) => s.lastResult)
@@ -40,9 +42,10 @@ export function ModeSelectScreen({
       <header className="screen-header">
         <button onClick={onBack}>← タイトル</button>
         <h1>撮影条件シューティング</h1>
-        <button className="push-right" onClick={onMaster}>
-          撮影条件マスタ
+        <button className="push-right" onClick={onDex}>
+          キャラ図鑑
         </button>
+        <button onClick={onMaster}>撮影条件マスタ</button>
       </header>
 
       <div className="select-body">

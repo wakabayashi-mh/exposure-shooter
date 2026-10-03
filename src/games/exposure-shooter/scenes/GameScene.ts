@@ -7,6 +7,7 @@ import { applyBreach, applyShot, createSession, type SessionState } from '../log
 import { hardSpawnIntervalSec, pickHardEnemy, toleranceFor } from '../logic/modes'
 import { pickEnemy, rollLowTarget } from '../logic/spawn'
 import type { PlayConfig } from '../playConfig'
+import { FACES, hasCharacter, loadCharacterImage, textureKey, type Face } from '../characters'
 import { usePlayStore } from '../playStore'
 import { DEFENSE_Y, depthAt, drawFloor, GAME_HEIGHT, project, VP } from './projection'
 
@@ -36,7 +37,9 @@ interface Enemy {
   /** 出現時刻（実時間 ms） */
   spawnedAt: number
   view: Phaser.GameObjects.Container
-  frame: Phaser.GameObjects.Graphics
+  /** キャラ SVG があればその画像、なければ部位名を書いた札（SPEC 8.1） */
+  look: { kind: 'character'; sprite: Phaser.GameObjects.Image } | { kind: 'placeholder'; frame: Phaser.GameObjects.Graphics }
+  face: Face
 }
 
 /**
@@ -66,6 +69,8 @@ export class GameScene extends Phaser.Scene {
   private reviewQueue: Condition[] = []
   private uidSeq = 0
   private ended = false
+  /** キャラ画像のテクスチャを作り終えたか（終わるまで敵を出さない） */
+  private charactersReady = false
   private lastHudKey = ''
 
   constructor() {
@@ -84,6 +89,7 @@ export class GameScene extends Phaser.Scene {
     this.lowTarget = rollLowTarget(Math.random)
     this.reviewQueue = [...data.pool]
     this.ended = false
+    this.charactersReady = false
     this.lastHudKey = ''
   }
 
@@ -95,6 +101,7 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0)
       .setDepth(1000)
       .setAlpha(0)
+    void this.loadCharacters()
 
     const cfg = DIFFICULTIES[this.stage.config.difficulty]
     usePlayStore.getState().setHud({
@@ -108,6 +115,26 @@ export class GameScene extends Phaser.Scene {
       target: null,
       exposure: { phase: 'idle', progress: 0 },
     })
+  }
+
+  /** このプレイに出るキャラの 3 表情をテクスチャにする。読めなかったキャラはプレースホルダーで出す */
+  private async loadCharacters() {
+    const ids = [...new Set(this.stage.pool.map((c) => c.character))].filter(hasCharacter)
+    await Promise.all(
+      ids.flatMap((id) =>
+        FACES.map(async (face) => {
+          try {
+            const img = await loadCharacterImage(id, face)
+            const key = textureKey(id, face)
+            // 読み込み中にシーンが終わっていたら何もしない
+            if (img && this.sys.textures && !this.textures.exists(key)) this.textures.addImage(key, img)
+          } catch (e) {
+            console.warn(e)
+          }
+        }),
+      ),
+    )
+    this.charactersReady = true
   }
 
   // ─── React から呼ばれる入力 ─────────────────────────────
@@ -169,7 +196,7 @@ export class GameScene extends Phaser.Scene {
     drawFloor(this.floor, this.floorOffset)
 
     this.nextSpawnIn -= gameDt
-    if (this.nextSpawnIn <= 0 && this.enemies.length < MODES[mode].maxEnemies) {
+    if (this.charactersReady && this.nextSpawnIn <= 0 && this.enemies.length < MODES[mode].maxEnemies) {
       this.spawn()
       this.nextSpawnIn =
         mode === 'hard'
@@ -248,14 +275,41 @@ export class GameScene extends Phaser.Scene {
       lane,
       t: 0,
       spawnedAt: this.realMs,
-      ...this.makePlaceholder(cond),
+      face: 'approach',
+      ...this.makeLook(cond),
     }
     this.enemies.push(enemy)
     this.place(enemy)
   }
 
-  /** キャラ SVG ができるまでの仮の見た目：部位名と方向を書いた札（SPEC 8.1） */
-  private makePlaceholder(c: Condition) {
+  private makeLook(c: Condition): Pick<Enemy, 'view' | 'look'> {
+    const key = textureKey(c.character, 'approach')
+    if (!this.textures.exists(key)) return this.makePlaceholder(c)
+    const sprite = this.add.image(0, 0, key).setOrigin(0.5, 1).setDisplaySize(ENEMY_W, ENEMY_H)
+    // 部位名・方向は全難易度で出す（SPEC 7.2）
+    const label = this.add
+      .text(0, -ENEMY_H - 6, `${c.part} ${c.view}`, {
+        fontFamily: FONT,
+        fontSize: '24px',
+        color: '#e8eef4',
+        fontStyle: 'bold',
+        stroke: '#0f1826',
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5, 1)
+    return { view: this.add.container(0, 0, [sprite, label]), look: { kind: 'character', sprite } }
+  }
+
+  /** 表情を切り替える（プレースホルダーは枠の色で表す） */
+  private setFace(e: Enemy, face: Face) {
+    if (e.face === face) return
+    e.face = face
+    if (e.look.kind === 'character') e.look.sprite.setTexture(textureKey(e.cond.character, face)).setDisplaySize(ENEMY_W, ENEMY_H)
+    else paintPlaceholder(e.look.frame, face !== 'approach')
+  }
+
+  /** キャラ SVG がない撮影の仮の見た目：部位名と方向を書いた札（SPEC 8.1） */
+  private makePlaceholder(c: Condition): Pick<Enemy, 'view' | 'look'> {
     const frame = this.add.graphics()
     paintPlaceholder(frame, false)
     const part = this.add
@@ -267,8 +321,7 @@ export class GameScene extends Phaser.Scene {
     const pos = this.add
       .text(0, -30, c.position ?? '', { fontFamily: FONT, fontSize: '18px', color: '#7f93a8' })
       .setOrigin(0.5)
-    const view_ = this.add.container(0, 0, [frame, part, view, pos])
-    return { view: view_, frame }
+    return { view: this.add.container(0, 0, [frame, part, view, pos]), look: { kind: 'placeholder', frame } }
   }
 
   private progressOf(e: Enemy) {
@@ -298,7 +351,7 @@ export class GameScene extends Phaser.Scene {
   private drawLock() {
     const g = this.lockGfx
     g.clear()
-    for (const e of this.enemies) paintPlaceholder(e.frame, e === this.locked)
+    for (const e of this.enemies) this.setFace(e, e === this.locked ? 'lockon' : 'approach')
     if (!this.locked) return
     const b = this.bounds(this.locked)
     const pad = 8
@@ -376,11 +429,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private playDefeat(e: Enemy, label: 'PERFECT' | 'GOOD', points: number) {
+    // 撃破の表情を少し見せてから消える
+    this.setFace(e, 'defeated')
     this.tweens.add({
       targets: e.view,
-      scale: e.view.scale * 1.35,
+      scale: e.view.scale * 1.25,
       alpha: 0,
-      duration: 320,
+      delay: 260,
+      duration: 420,
+      ease: 'Quad.easeIn',
       onComplete: () => e.view.destroy(),
     })
     const color = label === 'PERFECT' ? '#f5c56a' : '#e8eef4'

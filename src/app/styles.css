@@ -346,3 +346,28 @@ html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
   .hud-target .help, .hud-target p.small { font-size: 22px; line-height: 1.5; }
   .hud-toast { font-size: 26px; }
 }
+
+/* キャラ図鑑 */
+.small-seg { display: flex; gap: 6px; }
+.small-seg button { padding: 6px 14px; }
+.small-seg button.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.dex-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px;
+  padding: 20px 28px; width: 100%; max-width: 1240px; margin: 0 auto;
+}
+.dex-card { display: flex; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.dex-art { position: relative; flex-shrink: 0; width: 126px; height: 168px; padding: 0; border: none; background: none; border-radius: 10px; }
+.dex-art:disabled { opacity: 1; cursor: default; }
+.dex-art img { width: 126px; height: 168px; display: block; }
+.dex-placeholder {
+  width: 126px; height: 168px; border-radius: 10px; border: 3px solid var(--soft); background: var(--bg);
+  display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; line-height: 1.5;
+}
+.dex-card.hidden .dex-art img, .dex-card.hidden .dex-placeholder { filter: brightness(0) opacity(0.6); }
+.dex-face { position: absolute; left: 6px; bottom: 6px; font-size: 11px; background: #0f1826cc; border-radius: 4px; padding: 1px 6px; }
+.dex-badge { position: absolute; right: -6px; top: -6px; font-size: 11px; font-weight: 700; color: var(--bg); background: var(--accent); border-radius: 4px; padding: 1px 6px; }
+.dex-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dex-title { font-size: 18px; font-weight: 700; }
+.dex-name { color: var(--accent); font-size: 15px; margin-left: 4px; }
+.dex-cond { color: var(--accent); font-size: 15px; margin-top: 4px; }
+.dex-tip { color: var(--soft); font-size: 13px; line-height: 1.5; }

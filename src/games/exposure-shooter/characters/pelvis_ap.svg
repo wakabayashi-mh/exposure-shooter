@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 骨盤正面：骨盤腔（暗い丸）＝顔で、その中に白目 2 つ、恥骨弓＝にっこり口、閉鎖孔＝暗いほっぺ、腸骨翼＝ちょうちょの耳、仙骨＝前髪、大腿骨頭＝左右の足、R マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <path d="M20 40 H280 V384 H20 Z" fill="#7f93a8" opacity="0.5"/>
+    <!-- 腸骨翼：ちょうちょの耳 -->
+    <path d="M150 120 C110 70 50 40 26 70 C14 120 40 200 96 236 Z" fill="#e8eef4" opacity="0.6"/>
+    <path d="M150 120 C190 70 250 40 274 70 C286 120 260 200 204 236 Z" fill="#e8eef4" opacity="0.6"/>
+    <!-- 仙骨：前髪 -->
+    <path d="M118 86 H182 L170 168 H130 Z" fill="#e8eef4" opacity="0.75"/>
+    <!-- 骨盤腔（顔） -->
+    <ellipse cx="150" cy="210" rx="78" ry="64" fill="#101b2b"/>
+    <!-- 恥骨と閉鎖孔 -->
+    <path d="M70 250 C80 330 130 344 150 344 C170 344 220 330 230 250" fill="none" stroke="#e8eef4" stroke-width="16" opacity="0.65"/>
+    <ellipse cx="108" cy="300" rx="22" ry="26" fill="#101b2b"/><ellipse cx="192" cy="300" rx="22" ry="26" fill="#101b2b"/>
+    <!-- 大腿骨頭と頸部 -->
+    <circle cx="44" cy="262" r="28" fill="#e8eef4" opacity="0.75"/><path d="M40 282 L56 384" stroke="#e8eef4" stroke-width="30" opacity="0.6"/>
+    <circle cx="256" cy="262" r="28" fill="#e8eef4" opacity="0.75"/><path d="M260 282 L244 384" stroke="#e8eef4" stroke-width="30" opacity="0.6"/>
+    <rect x="22" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="39" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="120" cy="206" rx="18.7" ry="22.099999999999998" fill="#e8eef4"/><circle cx="120" cy="210.25" r="9.35" fill="#0f1826"/><circle cx="123.4" cy="206" r="3.4" fill="#ffffff"/><ellipse cx="180" cy="206" rx="18.7" ry="22.099999999999998" fill="#e8eef4"/><circle cx="180" cy="210.25" r="9.35" fill="#0f1826"/><circle cx="183.4" cy="206" r="3.4" fill="#ffffff"/><ellipse cx="108" cy="300" rx="13.5" ry="8.1" fill="#c96b7b" opacity="0.85"/><ellipse cx="192" cy="300" rx="13.5" ry="8.1" fill="#c96b7b" opacity="0.85"/><path d="M128 250 Q150 263.2 172 250" fill="none" stroke="#e8eef4" stroke-width="7"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="120" cy="204" rx="22.099999999999998" ry="26.349999999999998" fill="#e8eef4"/><circle cx="120" cy="205.7" r="5.95" fill="#0f1826"/><ellipse cx="180" cy="204" rx="22.099999999999998" ry="26.349999999999998" fill="#e8eef4"/><circle cx="180" cy="205.7" r="5.95" fill="#0f1826"/><ellipse cx="108" cy="300" rx="13.5" ry="8.1" fill="#c96b7b" opacity="1"/><ellipse cx="192" cy="300" rx="13.5" ry="8.1" fill="#c96b7b" opacity="1"/><ellipse cx="150" cy="254" rx="7.699999999999999" ry="9.799999999999999" fill="#0f1826" stroke="#e8eef4" stroke-width="4.199999999999999"/><path d="M236 150 C226 166 226 178 236 180 C246 178 246 166 236 150 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M106 214 Q120 194 134 214" fill="none" stroke="#e8eef4" stroke-width="8"/><path d="M166 214 Q180 194 194 214" fill="none" stroke="#e8eef4" stroke-width="8"/><ellipse cx="108" cy="298" rx="15" ry="9" fill="#c96b7b" opacity="1"/><ellipse cx="192" cy="298" rx="15" ry="9" fill="#c96b7b" opacity="1"/><path d="M124 244 Q150 273.9 176 244 Z" fill="#c96b7b" stroke="#e8eef4" stroke-width="5"/><path d="M150 30.6 L154.2 41.8 L165.4 46 L154.2 50.2 L150 61.4 L145.8 50.2 L134.6 46 L145.8 41.8 Z" fill="#f5c56a"/><path d="M262 166.8 L265.6 176.4 L275.2 180 L265.6 183.6 L262 193.2 L258.4 183.6 L248.8 180 L258.4 176.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

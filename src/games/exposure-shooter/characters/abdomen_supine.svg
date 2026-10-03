@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 腹部正面（臥位）：腸管ガス（暗い丸）＝両目（白目）、肝臓の下縁＝眉（患者の右＝画面左だけ）、腰椎＝鼻筋、骨盤の上縁（腸骨稜）＝口元、R マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <path d="M30 24 H270 C280 120 282 250 276 384 H24 C18 250 20 120 30 24 Z" fill="#7f93a8" opacity="0.6"/>
+    <!-- 肝臓（患者の右＝画面左） -->
+    <path d="M30 40 H170 C160 90 120 120 60 128 C44 130 34 126 30 120 Z" fill="#e8eef4" opacity="0.28"/>
+    <!-- 腰椎 -->
+    <g fill="#e8eef4" opacity="0.5">
+      <rect x="132" y="120" width="36" height="34" rx="8"/><rect x="132" y="162" width="36" height="34" rx="8"/>
+      <rect x="132" y="204" width="36" height="34" rx="8"/><rect x="132" y="246" width="36" height="34" rx="8"/>
+    </g>
+    <!-- 腸管ガス -->
+    <circle cx="96" cy="196" r="40" fill="#101b2b"/><circle cx="204" cy="196" r="40" fill="#101b2b"/>
+    <circle cx="70" cy="262" r="16" fill="#101b2b"/><circle cx="234" cy="268" r="14" fill="#101b2b"/>
+    <!-- 腸腰筋の線 -->
+    <path d="M128 150 L96 320" stroke="#e8eef4" stroke-width="4" opacity="0.25" fill="none"/>
+    <path d="M172 150 L204 320" stroke="#e8eef4" stroke-width="4" opacity="0.25" fill="none"/>
+    <!-- 腸骨翼と仙骨 -->
+    <path d="M24 300 C60 290 110 300 124 330 L120 384 H24 Z" fill="#e8eef4" opacity="0.3"/>
+    <path d="M276 300 C240 290 190 300 176 330 L180 384 H276 Z" fill="#e8eef4" opacity="0.3"/>
+    <path d="M124 300 H176 L160 384 H140 Z" fill="#e8eef4" opacity="0.4"/>
+    <rect x="22" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="39" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 132 Q90 116 130 132" fill="none" stroke="#e8eef4" stroke-width="9" opacity="0.9"/>
+    <ellipse cx="96" cy="196" rx="22" ry="26" fill="#e8eef4"/><circle cx="96" cy="201" r="11" fill="#0f1826"/><circle cx="100" cy="196" r="4" fill="#ffffff"/><ellipse cx="204" cy="196" rx="22" ry="26" fill="#e8eef4"/><circle cx="204" cy="201" r="11" fill="#0f1826"/><circle cx="208" cy="196" r="4" fill="#ffffff"/><ellipse cx="64" cy="250" rx="15" ry="9" fill="#c96b7b" opacity="0.85"/><ellipse cx="236" cy="250" rx="15" ry="9" fill="#c96b7b" opacity="0.85"/>
+    <path d="M120 296 Q150 314 180 296" fill="none" stroke="#e8eef4" stroke-width="8"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 120 Q90 102 130 120" fill="none" stroke="#e8eef4" stroke-width="9" opacity="0.9"/>
+    <ellipse cx="96" cy="194" rx="26" ry="31" fill="#e8eef4"/><circle cx="96" cy="196" r="7" fill="#0f1826"/><ellipse cx="204" cy="194" rx="26" ry="31" fill="#e8eef4"/><circle cx="204" cy="196" r="7" fill="#0f1826"/><ellipse cx="64" cy="254" rx="15" ry="9" fill="#c96b7b" opacity="1"/><ellipse cx="236" cy="254" rx="15" ry="9" fill="#c96b7b" opacity="1"/>
+    <ellipse cx="150" cy="304" rx="9.9" ry="12.6" fill="#0f1826" stroke="#e8eef4" stroke-width="5.4"/><path d="M258 140 C248 156 248 168 258 170 C268 168 268 156 258 140 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 128 Q90 112 130 128" fill="none" stroke="#e8eef4" stroke-width="9" opacity="0.9"/>
+    <path d="M82 204 Q96 184 110 204" fill="none" stroke="#e8eef4" stroke-width="8"/><path d="M190 204 Q204 184 218 204" fill="none" stroke="#e8eef4" stroke-width="8"/><ellipse cx="64" cy="246" rx="16.5" ry="9.9" fill="#c96b7b" opacity="1"/><ellipse cx="236" cy="246" rx="16.5" ry="9.9" fill="#c96b7b" opacity="1"/>
+    <path d="M116 290 Q150 329.1 184 290 Z" fill="#c96b7b" stroke="#e8eef4" stroke-width="5"/><path d="M256 70 L262 86 L278 92 L262 98 L256 114 L250 98 L234 92 L250 86 Z" fill="#f5c56a"/><path d="M44 286.8 L47.6 296.4 L57.2 300 L47.6 303.6 L44 313.2 L40.4 303.6 L30.8 300 L40.4 296.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

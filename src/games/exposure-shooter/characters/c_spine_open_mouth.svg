@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 頸椎開口位：歯突起（C2）そのものが顔。上下の歯で大きく開けた口の枠の中に顔を出す。C1 外側塊は顔なしの脇役、主役を金色の点線の輪で強調、R マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <path d="M30 24 H270 V384 H30 Z" fill="#7f93a8" opacity="0.5"/>
+    <!-- 開けた口（暗い） -->
+    <path d="M40 110 C80 90 220 90 260 110 L262 300 C220 320 80 320 38 300 Z" fill="#101b2b"/>
+    <!-- 上の歯・下の歯 -->
+    <g fill="#e8eef4" opacity="0.85">
+      <rect x="52" y="90" width="26" height="34" rx="8"/><rect x="82" y="86" width="26" height="36" rx="8"/><rect x="112" y="84" width="26" height="36" rx="8"/>
+      <rect x="162" y="84" width="26" height="36" rx="8"/><rect x="192" y="86" width="26" height="36" rx="8"/><rect x="222" y="90" width="26" height="34" rx="8"/>
+      <rect x="52" y="290" width="26" height="34" rx="8"/><rect x="82" y="294" width="26" height="36" rx="8"/><rect x="112" y="296" width="26" height="36" rx="8"/>
+      <rect x="162" y="296" width="26" height="36" rx="8"/><rect x="192" y="294" width="26" height="36" rx="8"/><rect x="222" y="290" width="26" height="34" rx="8"/>
+    </g>
+    <!-- C1 外側塊（脇役） -->
+    <path d="M56 170 C64 150 96 150 104 168 L100 232 C90 246 64 246 56 232 Z" fill="#e8eef4" opacity="0.5"/>
+    <path d="M244 170 C236 150 204 150 196 168 L200 232 C210 246 236 246 244 232 Z" fill="#e8eef4" opacity="0.5"/>
+    <!-- C2 椎体と歯突起（主役） -->
+    <path d="M100 286 C104 256 126 244 130 224 C128 182 132 144 150 136 C168 144 172 182 170 224 C174 244 196 256 200 286 Z" fill="#e8eef4"/>
+    <ellipse cx="150" cy="208" rx="62" ry="86" fill="none" stroke="#f5c56a" stroke-width="5" stroke-dasharray="10 10"/>
+    <rect x="22" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="39" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="140" cy="180" r="6.6" fill="#0f1826"/><circle cx="137.6" cy="177" r="2.4" fill="#ffffff"/><circle cx="160" cy="180" r="6.6" fill="#0f1826"/><circle cx="157.6" cy="177" r="2.4" fill="#ffffff"/><ellipse cx="134" cy="202" rx="6.75" ry="4.05" fill="#c96b7b" opacity="0.85"/><ellipse cx="166" cy="202" rx="6.75" ry="4.05" fill="#c96b7b" opacity="0.85"/><path d="M141 208 Q150 213.4 159 208" fill="none" stroke="#0f1826" stroke-width="4"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="140" cy="178" r="8.4" fill="#0f1826"/><circle cx="140" cy="178" r="3" fill="#e8eef4"/><circle cx="160" cy="178" r="8.4" fill="#0f1826"/><circle cx="160" cy="178" r="3" fill="#e8eef4"/><ellipse cx="134" cy="204" rx="6.75" ry="4.05" fill="#c96b7b" opacity="1"/><ellipse cx="166" cy="204" rx="6.75" ry="4.05" fill="#c96b7b" opacity="1"/><ellipse cx="150" cy="214" rx="5" ry="7" fill="#0f1826"/><path d="M206 140 C196 156 196 168 206 170 C216 168 216 156 206 140 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M133 184 Q140 174 147 184" fill="none" stroke="#0f1826" stroke-width="4"/><path d="M153 184 Q160 174 167 184" fill="none" stroke="#0f1826" stroke-width="4"/><ellipse cx="134" cy="200" rx="7.5" ry="4.5" fill="#c96b7b" opacity="1"/><ellipse cx="166" cy="200" rx="7.5" ry="4.5" fill="#c96b7b" opacity="1"/><path d="M139 206 Q150 218.65 161 206 Z" fill="#c96b7b" stroke="#0f1826" stroke-width="5"/><path d="M220 38 L226 54 L242 60 L226 66 L220 82 L214 66 L198 60 L214 54 Z" fill="#f5c56a"/><path d="M80 346.8 L83.6 356.4 L93.2 360 L83.6 363.6 L80 373.2 L76.4 363.6 L66.8 360 L76.4 356.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

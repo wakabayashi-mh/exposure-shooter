@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 股関節ラウエンシュタイン（右）：大腿骨頭＝顔（黒目 2 つ）、臼蓋＝帽子、大腿骨を外転・外旋したカエル足のポーズ、小転子＝あごの下のリボン、R マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <path d="M20 24 H280 V384 H20 Z" fill="#7f93a8" opacity="0.5"/>
+    <!-- 腸骨（うっすら） -->
+    <path d="M150 24 C210 40 270 80 280 130 L190 150 C170 110 150 70 150 24 Z" fill="#e8eef4" opacity="0.3"/>
+    <!-- 大腿骨：外転して斜めに伸びるカエル足 -->
+    <path d="M150 176 L268 340" stroke="#e8eef4" stroke-width="44" opacity="0.8" fill="none"/>
+    <path d="M232 292 C250 280 274 296 266 316 Z" fill="#e8eef4" opacity="0.8"/>
+    <!-- 小転子：リボン -->
+    <path d="M150 248 L130 232 L132 268 Z M150 248 L172 236 L168 270 Z" fill="#c96b7b" opacity="0.9"/>
+    <circle cx="150" cy="250" r="7" fill="#c96b7b"/>
+    <!-- 大腿骨頭（顔） -->
+    <circle cx="140" cy="180" r="62" fill="#e8eef4"/>
+    <!-- 臼蓋：帽子 -->
+    <path d="M60 170 C66 100 120 82 160 90 C196 98 222 124 226 156 C190 128 108 120 60 170 Z" fill="#e8eef4" opacity="0.85" stroke="#0f1826" stroke-width="5"/>
+    <rect x="22" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="39" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="120" cy="184" r="9.9" fill="#0f1826"/><circle cx="116.4" cy="179.5" r="3.6" fill="#ffffff"/><circle cx="160" cy="184" r="9.9" fill="#0f1826"/><circle cx="156.4" cy="179.5" r="3.6" fill="#ffffff"/><ellipse cx="106" cy="210" rx="11.25" ry="6.75" fill="#c96b7b" opacity="0.85"/><ellipse cx="174" cy="210" rx="11.25" ry="6.75" fill="#c96b7b" opacity="0.85"/><path d="M126 214 Q140 222.4 154 214" fill="none" stroke="#0f1826" stroke-width="6"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="120" cy="182" r="12.6" fill="#0f1826"/><circle cx="120" cy="182" r="4.5" fill="#e8eef4"/><circle cx="160" cy="182" r="12.6" fill="#0f1826"/><circle cx="160" cy="182" r="4.5" fill="#e8eef4"/><ellipse cx="106" cy="212" rx="11.25" ry="6.75" fill="#c96b7b" opacity="1"/><ellipse cx="174" cy="212" rx="11.25" ry="6.75" fill="#c96b7b" opacity="1"/><ellipse cx="140" cy="220" rx="7" ry="9" fill="#0f1826"/><path d="M220 190 C210 206 210 218 220 220 C230 218 230 206 220 190 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M108.8 191.2 Q120 175.2 131.2 191.2" fill="none" stroke="#0f1826" stroke-width="6.4"/><path d="M148.8 191.2 Q160 175.2 171.2 191.2" fill="none" stroke="#0f1826" stroke-width="6.4"/><ellipse cx="106" cy="208" rx="12" ry="7.2" fill="#c96b7b" opacity="1"/><ellipse cx="174" cy="208" rx="12" ry="7.2" fill="#c96b7b" opacity="1"/><path d="M122 210 Q140 230.7 158 210 Z" fill="#c96b7b" stroke="#0f1826" stroke-width="5"/><path d="M250 58 L256 74 L272 80 L256 86 L250 102 L244 86 L228 80 L244 74 Z" fill="#f5c56a"/><path d="M50 286.8 L53.6 296.4 L63.2 300 L53.6 303.6 L50 313.2 L46.4 303.6 L36.8 300 L46.4 296.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

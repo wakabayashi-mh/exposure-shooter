@@ -1,8 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { useBestStore } from '../bestStore'
+import { useDexStore } from '../dexStore'
 import type { Difficulty } from '../logic/constants'
 import type { PlayConfig, PlayResult } from '../playConfig'
+import { CharacterDexScreen } from './CharacterDexScreen'
 import { MasterListScreen } from './MasterListScreen'
 import { ModeSelectScreen } from './ModeSelectScreen'
 import { ResultScreen } from './ResultScreen'
@@ -11,7 +13,7 @@ import { StageSelectScreen } from './StageSelectScreen'
 // Phaser は大きいので、プレイ画面を開いたときに読み込む
 const PlayScreen = lazy(() => import('./PlayScreen').then((m) => ({ default: m.PlayScreen })))
 
-type Screen = 'mode' | 'stage' | 'play' | 'result' | 'master'
+type Screen = 'mode' | 'stage' | 'play' | 'result' | 'master' | 'dex'
 
 interface NavState {
   screen: Screen
@@ -55,11 +57,13 @@ function useLandscapeReady() {
 export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickStart?: PlayConfig | null }) {
   const { screen, difficulty, config, newBest, go, setDifficulty, play } = useNav()
   const loadBest = useBestStore((s) => s.load)
+  const loadDex = useDexStore((s) => s.load)
   const landscape = useLandscapeReady()
 
   useEffect(() => {
     void loadBest()
-  }, [loadBest])
+    void loadDex()
+  }, [loadBest, loadDex])
 
   // 試作の共有用：横向きになったらすぐ遊び始める
   useEffect(() => {
@@ -70,6 +74,7 @@ export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickS
 
   const finish = async (result: PlayResult) => {
     const better = await useBestStore.getState().submit(result)
+    await useDexStore.getState().addFromRecords(result.session.records)
     useNav.setState({ newBest: better, screen: 'result' })
   }
 
@@ -78,6 +83,8 @@ export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickS
       return <StageSelectScreen difficulty={difficulty} onPlay={play} onBack={() => go('mode')} />
     case 'master':
       return <MasterListScreen onBack={() => go('mode')} />
+    case 'dex':
+      return <CharacterDexScreen onBack={() => go('mode')} />
     case 'play':
       return (
         <Suspense fallback={<div className="screen center muted">読み込み中…</div>}>
@@ -105,6 +112,7 @@ export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickS
           onStandard={() => go('stage')}
           onPlay={play}
           onMaster={() => go('master')}
+          onDex={() => go('dex')}
           onBack={onExit}
         />
       )

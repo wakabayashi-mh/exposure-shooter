@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 腰椎正面：5 つの椎体が縦に並ぶだんご体。L3 の椎弓根＝両目（黒目）、棘突起＝鼻、L1 の横突起＝ばんざいの手、仙骨の上縁＝口元、R マーカー -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+    <path d="M40 24 H260 C270 140 270 260 262 384 H38 C30 260 30 140 40 24 Z" fill="#7f93a8" opacity="0.6"/>
+    <rect x="108" y="40" width="84" height="44" rx="10" fill="#e8eef4" opacity="0.75"/><rect x="108" y="96" width="84" height="44" rx="10" fill="#e8eef4" opacity="0.75"/><rect x="108" y="152" width="84" height="44" rx="10" fill="#e8eef4" opacity="0.75"/><rect x="108" y="208" width="84" height="44" rx="10" fill="#e8eef4" opacity="0.75"/><rect x="108" y="264" width="84" height="44" rx="10" fill="#e8eef4" opacity="0.75"/>
+    <!-- 横突起：L1 はばんざい -->
+    <path d="M110 62 L64 30" stroke="#e8eef4" stroke-width="12" opacity="0.7" fill="none"/>
+    <path d="M190 62 L236 30" stroke="#e8eef4" stroke-width="12" opacity="0.7" fill="none"/>
+    <g stroke="#e8eef4" stroke-width="10" opacity="0.5" fill="none">
+      <path d="M108 118 L76 118"/><path d="M192 118 L224 118"/><path d="M108 230 L80 232"/><path d="M192 230 L220 232"/><path d="M108 286 L86 290"/><path d="M192 286 L214 290"/>
+    </g>
+    <!-- 仙骨と腸骨 -->
+    <path d="M104 322 Q150 312 196 322 L176 384 H124 Z" fill="#e8eef4" opacity="0.55"/>
+    <path d="M40 300 C70 290 96 310 104 330 L96 384 H40 Z" fill="#e8eef4" opacity="0.3"/>
+    <path d="M260 300 C230 290 204 310 196 330 L204 384 H260 Z" fill="#e8eef4" opacity="0.3"/>
+    <rect x="22" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="39" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="128" cy="168" rx="10" ry="13" fill="#0f1826"/><circle cx="125" cy="163" r="3.5" fill="#fff"/>
+    <ellipse cx="172" cy="168" rx="10" ry="13" fill="#0f1826"/><circle cx="169" cy="163" r="3.5" fill="#fff"/>
+    <path d="M150 176 L144 190 H156 Z" fill="#e8eef4" stroke="#0f1826" stroke-width="3"/>
+    <ellipse cx="116" cy="192" rx="9" ry="5.3999999999999995" fill="#c96b7b" opacity="0.85"/><ellipse cx="184" cy="192" rx="9" ry="5.3999999999999995" fill="#c96b7b" opacity="0.85"/><path d="M130 330 Q150 342 170 330" fill="none" stroke="#0f1826" stroke-width="6"/>
+  </g>
+
+  <!-- ロックオン・曝射中 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="128" cy="168" rx="13" ry="16" fill="#0f1826"/><circle cx="128" cy="168" r="4.5" fill="#e8eef4"/>
+    <ellipse cx="172" cy="168" rx="13" ry="16" fill="#0f1826"/><circle cx="172" cy="168" r="4.5" fill="#e8eef4"/>
+    <path d="M150 178 L144 192 H156 Z" fill="#e8eef4" stroke="#0f1826" stroke-width="3"/>
+    <ellipse cx="116" cy="196" rx="9" ry="5.3999999999999995" fill="#c96b7b" opacity="1"/><ellipse cx="184" cy="196" rx="9" ry="5.3999999999999995" fill="#c96b7b" opacity="1"/><ellipse cx="150" cy="336" rx="9" ry="11" fill="#0f1826"/><path d="M240 150 C230 166 230 178 240 180 C250 178 250 166 240 150 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破 -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M118.2 174.8 Q128 160.8 137.8 174.8" fill="none" stroke="#0f1826" stroke-width="5.6"/><path d="M162.2 174.8 Q172 160.8 181.8 174.8" fill="none" stroke="#0f1826" stroke-width="5.6"/>
+    <path d="M150 178 L144 192 H156 Z" fill="#e8eef4" stroke="#0f1826" stroke-width="3"/>
+    <ellipse cx="116" cy="192" rx="10.5" ry="6.3" fill="#c96b7b" opacity="1"/><ellipse cx="184" cy="192" rx="10.5" ry="6.3" fill="#c96b7b" opacity="1"/><path d="M126 326 Q150 353.6 174 326 Z" fill="#c96b7b" stroke="#0f1826" stroke-width="5"/><path d="M250 98 L256 114 L272 120 L256 126 L250 142 L244 126 L228 120 L244 114 Z" fill="#f5c56a"/><path d="M50 186.8 L53.6 196.4 L63.2 200 L53.6 203.6 L50 213.2 L46.4 203.6 L36.8 200 L46.4 196.4 Z" fill="#f5c56a"/>
+  </g>
+</svg>

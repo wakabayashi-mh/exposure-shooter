@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <!-- 胸部正面（PA）「レンちゃん」
+       肺野＝両目、鎖骨＝眉、心陰影＝ハート（患者の左＝画面右）、横隔膜＝口元、気管＝頭頂の通り道 -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="288" height="388" rx="28" fill="#0f1826" stroke="#2f4462" stroke-width="6"/>
+
+    <!-- 軟部組織：首・肩・胴 -->
+    <path d="M118 18 H182 L186 72 C232 80 266 100 274 146 L280 384 H20 L26 146 C34 100 68 80 114 72 Z" fill="#7f93a8" opacity="0.6"/>
+    <!-- 気管：頭頂の通り道 -->
+    <rect x="139" y="14" width="22" height="118" rx="11" fill="#0f1826" opacity="0.85"/>
+    <!-- 肺野（暗い） -->
+    <path d="M138 122 C104 110 58 134 50 210 C44 270 50 318 60 346 C86 334 116 330 138 336 Z" fill="#101b2b"/>
+    <path d="M162 122 C196 110 242 134 250 210 C256 270 250 318 240 346 C214 334 184 330 162 336 Z" fill="#101b2b"/>
+    <!-- 脊椎（うっすら） -->
+    <rect x="143" y="128" width="14" height="250" rx="7" fill="#e8eef4" opacity="0.18"/>
+    <!-- 心陰影：患者の左（画面右）寄りのハート -->
+    <path d="M176 262 C176 240 206 236 210 258 C214 236 244 240 244 262 C244 286 214 300 210 316 C206 300 176 286 176 262 Z" fill="#e8eef4" opacity="0.5"/>
+    <!-- R マーカー -->
+    <rect x="22" y="24" width="34" height="40" rx="4" fill="none" stroke="#ffffff" stroke-width="3"/>
+    <text x="39" y="54" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">R</text>
+  </g>
+
+  <!-- 接近中 -->
+  <g id="face-approach" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M56 114 Q98 96 136 116" fill="none" stroke="#e8eef4" stroke-width="10"/>
+    <path d="M164 116 Q202 96 244 114" fill="none" stroke="#e8eef4" stroke-width="10"/>
+    <ellipse cx="98" cy="200" rx="24" ry="29" fill="#e8eef4"/>
+    <ellipse cx="202" cy="200" rx="24" ry="29" fill="#e8eef4"/>
+    <circle cx="103" cy="206" r="12" fill="#0f1826"/>
+    <circle cx="197" cy="206" r="12" fill="#0f1826"/>
+    <circle cx="107" cy="201" r="4" fill="#ffffff"/>
+    <circle cx="201" cy="201" r="4" fill="#ffffff"/>
+    <ellipse cx="82" cy="258" rx="17" ry="10" fill="#c96b7b" opacity="0.8"/>
+    <ellipse cx="218" cy="258" rx="17" ry="10" fill="#c96b7b" opacity="0.8"/>
+    <!-- 横隔膜＝口元（にっこり） -->
+    <path d="M100 334 Q150 362 200 334" fill="none" stroke="#e8eef4" stroke-width="9"/>
+  </g>
+
+  <!-- ロックオン・曝射中：目を見開いて「o」 -->
+  <g id="face-lockon" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M56 100 Q98 80 136 102" fill="none" stroke="#e8eef4" stroke-width="10"/>
+    <path d="M164 102 Q202 80 244 100" fill="none" stroke="#e8eef4" stroke-width="10"/>
+    <ellipse cx="98" cy="200" rx="28" ry="34" fill="#e8eef4"/>
+    <ellipse cx="202" cy="200" rx="28" ry="34" fill="#e8eef4"/>
+    <circle cx="98" cy="202" r="8" fill="#0f1826"/>
+    <circle cx="202" cy="202" r="8" fill="#0f1826"/>
+    <ellipse cx="82" cy="262" rx="17" ry="10" fill="#c96b7b" opacity="0.9"/>
+    <ellipse cx="218" cy="262" rx="17" ry="10" fill="#c96b7b" opacity="0.9"/>
+    <ellipse cx="150" cy="340" rx="15" ry="18" fill="#0f1826" stroke="#e8eef4" stroke-width="7"/>
+    <!-- 汗 -->
+    <path d="M262 150 C252 166 252 178 262 180 C272 178 272 166 262 150 Z" fill="#8fd0ff" opacity="0.9"/>
+  </g>
+
+  <!-- 撃破：にっこり -->
+  <g id="face-defeated" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M56 110 Q98 92 136 112" fill="none" stroke="#e8eef4" stroke-width="10"/>
+    <path d="M164 112 Q202 92 244 110" fill="none" stroke="#e8eef4" stroke-width="10"/>
+    <path d="M76 210 Q98 184 120 210" fill="none" stroke="#e8eef4" stroke-width="9"/>
+    <path d="M180 210 Q202 184 224 210" fill="none" stroke="#e8eef4" stroke-width="9"/>
+    <ellipse cx="82" cy="252" rx="19" ry="11" fill="#c96b7b"/>
+    <ellipse cx="218" cy="252" rx="19" ry="11" fill="#c96b7b"/>
+    <path d="M100 326 Q150 384 200 326 Z" fill="#c96b7b" stroke="#e8eef4" stroke-width="7"/>
+    <!-- キラキラ -->
+    <path d="M258 70 L264 86 L280 92 L264 98 L258 114 L252 98 L236 92 L252 86 Z" fill="#f5c56a"/>
+    <path d="M40 290 L44 300 L54 304 L44 308 L40 318 L36 308 L26 304 L36 300 Z" fill="#f5c56a"/>
+  </g>
+</svg>
