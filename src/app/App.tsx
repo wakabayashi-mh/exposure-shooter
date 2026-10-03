@@ -42,7 +42,7 @@ function TitleScreen({ onSelect }: { onSelect: (s: Screen) => void }) {
         <p className="muted">一般撮影の撮影条件（管電圧・mAs・撮影距離）を体で覚える</p>
         <div className="actions">
           <button className="primary" onClick={() => onSelect('play')}>
-            プレイ（試作）
+            スタンダード：胸腹部
           </button>
           <button onClick={() => onSelect('master')}>撮影条件マスタ</button>
         </div>
