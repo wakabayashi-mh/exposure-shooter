@@ -1,16 +1,23 @@
 import { create } from 'zustand'
+import type { PlayConfig } from '../games/exposure-shooter/playConfig'
 import { ShooterRoot } from '../games/exposure-shooter/ui/ShooterRoot'
+
+/**
+ * 試作を友達に遊んでもらう間だけ：開いたらメニューを飛ばして、このステージをすぐ始める。
+ * スマホは横向きになってから始まる。やめるとモード選択に戻る。普段の動きに戻すときは null にする。
+ */
+const QUICK_START: PlayConfig | null = { mode: 'standard', difficulty: 'standard', region: 'chest_abdomen' }
 
 type Screen = 'title' | 'exposure-shooter'
 
 const useAppStore = create<{ screen: Screen; go: (s: Screen) => void }>((set) => ({
-  screen: 'title',
+  screen: QUICK_START ? 'exposure-shooter' : 'title',
   go: (screen) => set({ screen }),
 }))
 
 export function App() {
   const { screen, go } = useAppStore()
-  if (screen === 'exposure-shooter') return <ShooterRoot onExit={() => go('title')} />
+  if (screen === 'exposure-shooter') return <ShooterRoot onExit={() => go('title')} quickStart={QUICK_START} />
   return <TitleScreen onSelect={go} />
 }
 

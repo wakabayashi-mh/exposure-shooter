@@ -7,6 +7,18 @@ import { buildMasSeries, type MasSeries } from './logic/masSeries'
 import { buildSidOptions, type SidOptions } from './logic/sidOptions'
 
 export const MASTER_KEY = 'exposure-shooter/master'
+/**
+ * 保存中のマスタがどの版のサンプルか。施設の条件表を取り込んだら 'imported' にする（フェーズ 5）。
+ * サンプルを書き換えて配り直したとき、古いサンプルを保存している端末も新しいサンプルに入れ替えるために使う。
+ */
+const SAMPLE_VERSION_KEY = 'exposure-shooter/master-sample-version'
+const SAMPLE_VERSION = hashOf(JSON.stringify(sample))
+
+function hashOf(text: string): string {
+  let h = 0
+  for (let i = 0; i < text.length; i++) h = (Math.imul(h, 31) + text.charCodeAt(i)) | 0
+  return (h >>> 0).toString(16)
+}
 
 interface MasterState {
   status: 'idle' | 'loading' | 'ready'
@@ -28,17 +40,19 @@ function derive(raw: unknown) {
   return { conditions, errors, mas: buildMasSeries(conditions), sid: buildSidOptions(conditions) }
 }
 
-export const useMasterStore = create<MasterState>((set) => ({
+export const useMasterStore = create<MasterState>((set, get) => ({
   status: 'idle',
   source: null,
   ...derive([]),
 
   load: async () => {
     set({ status: 'loading' })
-    const saved = await getStorage().get<unknown>(MASTER_KEY)
-    if (saved === undefined) {
-      await getStorage().set(MASTER_KEY, sample)
-      set({ status: 'ready', source: 'sample', ...derive(sample) })
+    const storage = getStorage()
+    const saved = await storage.get<unknown>(MASTER_KEY)
+    const version = await storage.get<string>(SAMPLE_VERSION_KEY)
+    // 未保存、または古い版のサンプルのままなら今のサンプルに入れ替える（版の記録がない = 取り込み機能より前のサンプル）
+    if (saved === undefined || (version !== 'imported' && version !== SAMPLE_VERSION)) {
+      await get().loadSample()
     } else {
       set({ status: 'ready', source: 'saved', ...derive(saved) })
     }
@@ -46,6 +60,7 @@ export const useMasterStore = create<MasterState>((set) => ({
 
   loadSample: async () => {
     await getStorage().set(MASTER_KEY, sample)
+    await getStorage().set(SAMPLE_VERSION_KEY, SAMPLE_VERSION)
     set({ status: 'ready', source: 'sample', ...derive(sample) })
   },
 }))

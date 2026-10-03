@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { useBestStore } from '../bestStore'
 import type { Difficulty } from '../logic/constants'
@@ -35,14 +35,38 @@ const useNav = create<NavState>((set) => ({
   play: (config) => set({ config, screen: 'play' }),
 }))
 
+/** クイックスタートはページを開いたときの 1 回だけ */
+let quickStarted = false
+
+/** スマホを縦に持っている間は false（横向きを促す表示が出ている） */
+function useLandscapeReady() {
+  const query = () => !matchMedia('(pointer: coarse)').matches || matchMedia('(orientation: landscape)').matches
+  const [ready, setReady] = useState(query)
+  useEffect(() => {
+    const mq = matchMedia('(orientation: landscape)')
+    const onChange = () => setReady(query())
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return ready
+}
+
 /** 撮影条件シューティングの画面遷移（モード選択 → ステージ選択 → プレイ → 結果・復習） */
-export function ShooterRoot({ onExit }: { onExit: () => void }) {
+export function ShooterRoot({ onExit, quickStart }: { onExit: () => void; quickStart?: PlayConfig | null }) {
   const { screen, difficulty, config, newBest, go, setDifficulty, play } = useNav()
   const loadBest = useBestStore((s) => s.load)
+  const landscape = useLandscapeReady()
 
   useEffect(() => {
     void loadBest()
   }, [loadBest])
+
+  // 試作の共有用：横向きになったらすぐ遊び始める
+  useEffect(() => {
+    if (!quickStart || quickStarted || !landscape) return
+    quickStarted = true
+    play(quickStart)
+  }, [quickStart, landscape, play])
 
   const finish = async (result: PlayResult) => {
     const better = await useBestStore.getState().submit(result)
