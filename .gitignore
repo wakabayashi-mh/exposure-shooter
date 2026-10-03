@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-electron/
+release/
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

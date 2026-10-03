@@ -1,0 +1,95 @@
+:root {
+  --bg: #0f1826;
+  --panel: #16233a;
+  --line: #2a3b55;
+  --soft: #7f93a8;
+  --bone: #e8eef4;
+  --cheek: #c96b7b;
+  --accent: #f5c56a;
+  --font: 'Yu Gothic UI', 'Meiryo', 'Hiragino Sans', sans-serif;
+  --mono: 'Consolas', 'BIZ UDGothic', monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--font);
+  font-size: 15px;
+  overflow: hidden;
+}
+
+h1, h2 { font-weight: 600; margin: 0; }
+h1 { font-size: 22px; }
+h2 { font-size: 15px; color: var(--soft); margin: 16px 0 8px; }
+.muted { color: var(--soft); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+button {
+  font: inherit;
+  color: var(--bone);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--soft); }
+button.primary { background: var(--cheek); border-color: var(--cheek); }
+button.primary:hover { filter: brightness(1.1); }
+
+.screen { height: 100%; display: flex; flex-direction: column; }
+.screen.center { align-items: center; justify-content: center; }
+
+/* タイトル */
+.title .series { letter-spacing: 0.2em; margin-bottom: 16px; }
+.game-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 32px 40px;
+  text-align: center;
+  max-width: 560px;
+}
+.game-card h1 { font-size: 30px; margin-bottom: 8px; }
+.game-card .actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+
+/* マスタ一覧 */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.push-right { margin-left: auto; }
+.errors {
+  margin: 12px 20px 0;
+  padding: 8px 16px;
+  border: 1px solid var(--cheek);
+  border-radius: 8px;
+}
+.errors h2 { color: var(--cheek); margin-top: 4px; }
+.errors ul { margin: 0; padding-left: 20px; }
+.master-body { flex: 1; min-height: 0; display: flex; gap: 20px; padding: 12px 20px 20px; }
+.table-wrap { flex: 1; min-width: 0; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--panel); color: var(--soft); font-weight: 500; }
+td.num, th.num { text-align: right; }
+td.tip { white-space: normal; color: var(--soft); font-size: 13px; min-width: 200px; }
+td.added { color: var(--accent); }
+.derived { width: 260px; flex-shrink: 0; overflow: auto; }
+.derived h2:first-child { margin-top: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { padding: 2px 8px; border-radius: 4px; background: var(--panel); font-size: 13px; }
+.chip.added { color: var(--bg); background: var(--accent); }
+.chip.initial { outline: 2px solid var(--bone); }
+.note { font-size: 13px; color: var(--soft); margin: 8px 0 0; }
+
+/* プレイ */
+.play { position: relative; }
+.phaser-host { flex: 1; min-height: 0; }
+.overlay-back { position: absolute; top: 12px; left: 12px; }
