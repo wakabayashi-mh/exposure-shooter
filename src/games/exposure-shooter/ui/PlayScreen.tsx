@@ -1,27 +1,28 @@
 import Phaser from 'phaser'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CONTROLS, DIFFICULTIES, KV_DIAL, MAS_INITIAL, type Difficulty } from '../logic/constants'
-import { REGION_LABELS, type Region } from '../logic/master'
+import { CONTROLS, KV_DIAL, MAS_INITIAL } from '../logic/constants'
 import { kvOptions } from '../logic/params'
-import { stagePool } from '../logic/spawn'
 import { useMasterStore } from '../masterStore'
+import { buildPool, modeLabel, stageName, type PlayConfig, type PlayResult } from '../playConfig'
 import { usePlayStore } from '../playStore'
 import { GameScene, type GameSceneData } from '../scenes/GameScene'
 import { GAME_HEIGHT, GAME_WIDTH } from '../scenes/projection'
 import { ControlPanel, TargetPanel, Toast, TopBar } from './Hud'
-import { StageEndOverlay } from './StageEndOverlay'
+
+/** 終了の表示（CLEAR / GAME OVER）を見せてから結果画面へ移るまで [ms] */
+const END_BANNER_MS = 1800
 
 interface Props {
-  onBack: () => void
-  region?: Region
-  difficulty?: Difficulty
+  config: PlayConfig
+  onFinish: (result: PlayResult) => void
+  onQuit: () => void
 }
 
 /**
  * プレイ画面。1280×800 の舞台を丸ごと拡大縮小し、Phaser と React の HUD を同じ座標で重ねる（SPEC 9.1）。
  * マウス・キーボードはここで受けて、ダイヤル操作は playStore、照準と曝射は GameScene に渡す。
  */
-export function PlayScreen({ onBack, region = 'chest_abdomen', difficulty = 'standard' }: Props) {
+export function PlayScreen({ config, onFinish, onQuit }: Props) {
   const master = useMasterStore()
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
@@ -31,13 +32,26 @@ export function PlayScreen({ onBack, region = 'chest_abdomen', difficulty = 'sta
 
   const sceneData = useMemo<GameSceneData>(
     () => ({
-      pool: stagePool(master.conditions, region),
+      config,
+      pool: buildPool(config, master.conditions),
       masSeries: master.mas.series,
-      difficulty,
-      stageName: `${REGION_LABELS[region]}`,
+      stageName: stageName(config),
+      modeLabel: modeLabel(config),
     }),
-    [master.conditions, master.mas.series, region, difficulty],
+    [config, master.conditions, master.mas.series],
   )
+
+  // 終わったら少し見せてから結果画面へ
+  const onFinishRef = useRef(onFinish)
+  onFinishRef.current = onFinish
+  useEffect(() => {
+    if (status !== 'cleared' && status !== 'gameover') return
+    const id = setTimeout(() => {
+      const result = usePlayStore.getState().lastResult
+      if (result) onFinishRef.current(result)
+    }, END_BANNER_MS)
+    return () => clearTimeout(id)
+  }, [status])
 
   // ダイヤルの選択肢（前回の値は保持する）
   useEffect(() => {
@@ -73,28 +87,49 @@ export function PlayScreen({ onBack, region = 'chest_abdomen', difficulty = 'sta
 
   const scene = () => gameRef.current?.scene.getScene('game') as GameScene | null | undefined
 
-  // マウス
+  // マウス・タッチ
+  // マウス：ホバーでロックオン、左ボタン長押しで準備（画面のどこでも）。
+  // タッチ（スマホ）：敵をタップしてロックオン、曝射パネルを長押しで準備 → 離して曝射。
   useEffect(() => {
     const stage = stageRef.current!
-    const toBase = (e: MouseEvent) => {
+    const toBase = (e: PointerEvent) => {
       const r = stage.getBoundingClientRect()
       return { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale }
     }
-    const onMove = (e: MouseEvent) => {
+    const onCanvas = (e: Event) => e.target instanceof HTMLCanvasElement
+    let touchTrigger: number | null = null
+
+    const onMove = (e: PointerEvent) => {
       // キャンバスの上にあるときだけ照準として扱う（パネルの上ではロックオンを変えない）
-      scene()?.setPointer(e.target instanceof HTMLCanvasElement ? toBase(e) : null)
+      if (e.pointerType === 'mouse') scene()?.setPointer(onCanvas(e) ? toBase(e) : null)
     }
-    const onLeave = () => scene()?.setPointer(null)
-    const onDown = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button, .end-overlay')) return
+    const onLeave = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') scene()?.setPointer(null)
+    }
+    const onDown = (e: PointerEvent) => {
+      const el = e.target as HTMLElement
+      if (el.closest('button, .end-overlay')) return
+      if (e.pointerType !== 'mouse') {
+        if (onCanvas(e)) scene()?.tapAt(toBase(e))
+        else if (el.closest('.trigger') && touchTrigger === null) {
+          touchTrigger = e.pointerId
+          scene()?.pressTrigger()
+        }
+        return
+      }
       if (e.button === 0) scene()?.pressTrigger()
       if (e.button === 2 || (e.button === 1 && CONTROLS.middleButtonCycles)) {
         e.preventDefault()
         usePlayStore.getState().cycleSelected()
       }
     }
-    const onUp = (e: MouseEvent) => {
-      if (e.button === 0) scene()?.releaseTrigger()
+    const onUp = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') {
+        if (e.button === 0) scene()?.releaseTrigger()
+      } else if (e.pointerId === touchTrigger) {
+        touchTrigger = null
+        scene()?.releaseTrigger()
+      }
     }
     const onWheel = (e: WheelEvent) => {
       if ((e.target as HTMLElement).closest('.end-overlay')) return
@@ -103,19 +138,21 @@ export function PlayScreen({ onBack, region = 'chest_abdomen', difficulty = 'sta
       const { step, selected } = usePlayStore.getState()
       step(selected, e.deltaY < 0 ? 1 : -1)
     }
-    const onContext = (e: MouseEvent) => e.preventDefault()
+    const onContext = (e: Event) => e.preventDefault()
 
-    stage.addEventListener('mousemove', onMove)
-    stage.addEventListener('mouseleave', onLeave)
-    stage.addEventListener('mousedown', onDown)
-    window.addEventListener('mouseup', onUp)
+    stage.addEventListener('pointermove', onMove)
+    stage.addEventListener('pointerleave', onLeave)
+    stage.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
     stage.addEventListener('wheel', onWheel, { passive: false })
     stage.addEventListener('contextmenu', onContext)
     return () => {
-      stage.removeEventListener('mousemove', onMove)
-      stage.removeEventListener('mouseleave', onLeave)
-      stage.removeEventListener('mousedown', onDown)
-      window.removeEventListener('mouseup', onUp)
+      stage.removeEventListener('pointermove', onMove)
+      stage.removeEventListener('pointerleave', onLeave)
+      stage.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
       stage.removeEventListener('wheel', onWheel)
       stage.removeEventListener('contextmenu', onContext)
     }
@@ -155,7 +192,6 @@ export function PlayScreen({ onBack, region = 'chest_abdomen', difficulty = 'sta
     }
   }, [])
 
-  const retry = () => scene()?.scene.restart(sceneData)
 
   return (
     <div className="play-viewport">
@@ -169,19 +205,21 @@ export function PlayScreen({ onBack, region = 'chest_abdomen', difficulty = 'sta
           <div className="end-overlay">
             <div className="end-card">
               <p>このステージの撮影がマスタにありません。</p>
-              <button onClick={onBack}>戻る</button>
+              <button onClick={onQuit}>戻る</button>
             </div>
           </div>
         )}
-        <TopBar modeLabel={`スタンダードモード／難易度 ${DIFFICULTIES[difficulty].label}`} />
+        <TopBar />
         <TargetPanel />
         <ControlPanel />
         <Toast />
-        <button className="hud-back" onClick={onBack}>
+        <button className="hud-back" onClick={onQuit}>
           ← やめる
         </button>
         {(status === 'cleared' || status === 'gameover') && (
-          <StageEndOverlay pool={sceneData.pool} onRetry={retry} onBack={onBack} />
+          <div className="end-overlay banner">
+            <div className={`end-banner ${status}`}>{status === 'cleared' ? 'CLEAR' : 'GAME OVER'}</div>
+          </div>
         )}
       </div>
     </div>

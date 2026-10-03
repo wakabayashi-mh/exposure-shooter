@@ -43,7 +43,7 @@ export function pickEnemy(pool: readonly Condition[], ctx: SpawnContext, rng: Rn
   return weightedPick(main, (c) => FREQUENCY_WEIGHT[c.frequency as 'high' | 'mid'], rng)
 }
 
-function weightedPick<T>(items: readonly T[], weight: (t: T) => number, rng: Rng): T {
+export function weightedPick<T>(items: readonly T[], weight: (t: T) => number, rng: Rng): T {
   const total = items.reduce((sum, t) => sum + weight(t), 0)
   let r = rng() * total
   for (const t of items) {

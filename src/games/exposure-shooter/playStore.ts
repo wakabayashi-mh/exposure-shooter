@@ -1,16 +1,16 @@
 import { create } from 'zustand'
-import type { Difficulty } from './logic/constants'
 import type { ExposurePhase } from './logic/exposure'
 import type { Condition } from './logic/master'
 import { nearestOption, nextParam, stepOption, type ParamKey } from './logic/params'
-import type { SessionState } from './logic/session'
+import type { PlayResult } from './playConfig'
 
 /** Phaser シーンが書き、React の HUD が読む表示用の状態 */
 export interface HudState {
   status: 'idle' | 'playing' | 'cleared' | 'gameover'
   stageName: string
-  difficulty: Difficulty
-  timeLeftSec: number
+  modeLabel: string
+  /** 上段左の時計。スタンダードは残り時間、ハードは経過時間、復習は残りの敵の数 */
+  clock: { label: string; warn: boolean }
   lives: number
   maxLives: number
   score: number
@@ -18,8 +18,8 @@ export interface HudState {
   target: { condition: Condition; remainingSec: number; fixed: boolean } | null
   exposure: { phase: ExposurePhase; progress: number }
   toast: { text: string; id: number } | null
-  /** ステージ終了時のセッション（結果表示用） */
-  result: SessionState | null
+  /** 直前のプレイの結果（結果・復習画面と「外した部位だけ再挑戦」に使う） */
+  lastResult: PlayResult | null
 }
 
 export interface DialOptions {
@@ -49,8 +49,8 @@ let toastSeq = 0
 export const usePlayStore = create<PlayState>((set, get) => ({
   status: 'idle',
   stageName: '',
-  difficulty: 'standard',
-  timeLeftSec: 0,
+  modeLabel: '',
+  clock: { label: '', warn: false },
   lives: 0,
   maxLives: 0,
   score: 0,
@@ -58,7 +58,7 @@ export const usePlayStore = create<PlayState>((set, get) => ({
   target: null,
   exposure: { phase: 'idle', progress: 0 },
   toast: null,
-  result: null,
+  lastResult: null,
 
   params: { kv: Number.NaN, mas: Number.NaN, sid: Number.NaN },
   selected: 'kv',

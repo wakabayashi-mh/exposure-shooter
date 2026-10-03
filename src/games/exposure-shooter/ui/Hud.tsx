@@ -1,22 +1,19 @@
 import { useEffect, useState } from 'react'
 import { FEEDBACK } from '../logic/constants'
+import { comboMultiplier } from '../logic/session'
 import { PARAM_LABELS, PARAM_ORDER, type ParamKey } from '../logic/params'
 import { useShallow } from 'zustand/react/shallow'
 import { usePlayStore } from '../playStore'
 
 /** 上段：ステージ名・モード・残り時間（左）、ライフ（中央）、スコア・コンボ（右） */
-export function TopBar({ modeLabel }: { modeLabel: string }) {
-  const { stageName, timeLeftSec, lives, maxLives, score, combo } = usePlayStore()
-  const mm = Math.floor(timeLeftSec / 60)
-  const ss = String(timeLeftSec % 60).padStart(2, '0')
+export function TopBar() {
+  const { stageName, modeLabel, clock, lives, maxLives, score, combo } = usePlayStore()
   return (
     <div className="hud-top">
       <div className="hud-top-left">
         <span className="stage-name">{stageName}</span>
         <span className="muted">{modeLabel}</span>
-        <span className={`mono time${timeLeftSec <= 10 ? ' warn' : ''}`}>
-          {mm}:{ss}
-        </span>
+        <span className={`mono time${clock.warn ? ' warn' : ''}`}>{clock.label}</span>
       </div>
       <div className="hud-lives" aria-label={`ライフ ${lives}`}>
         {Array.from({ length: maxLives }, (_, i) => (
@@ -27,7 +24,7 @@ export function TopBar({ modeLabel }: { modeLabel: string }) {
       </div>
       <div className="hud-top-right">
         <span className="mono score">{score.toLocaleString()}</span>
-        <span className="mono combo">{combo > 1 ? `${combo} COMBO` : ''}</span>
+        <span className="mono combo">{combo > 0 ? `${combo} COMBO ×${comboMultiplier(combo)}` : ''}</span>
       </div>
     </div>
   )
@@ -51,17 +48,27 @@ export function TargetPanel() {
         </>
       ) : (
         <p className="muted small">
-          敵にカーソルを重ねるとロックオン。
-          <br />
-          Tab で近い敵へ切り替え。
+          <span className="only-mouse">
+            敵にカーソルを重ねるとロックオン。
+            <br />
+            Tab で近い敵へ切り替え。
+          </span>
+          <span className="only-touch">敵をタップしてロックオン。</span>
         </p>
       )}
-      <div className="help small muted">
+      <div className="help small muted only-mouse">
         ホイール：値を変える
         <br />
         右クリック：kV / mAs / 距離 を切り替え
         <br />
         左クリック長押し：準備 → 離して曝射
+      </div>
+      <div className="help small muted only-touch">
+        敵をタップ：ロックオン
+        <br />
+        ▲▼：値を変える
+        <br />
+        曝射パネル長押し：準備 → 離して曝射
       </div>
     </div>
   )
@@ -80,12 +87,13 @@ export function ControlPanel() {
 }
 
 function Dial({ param }: { param: ParamKey }) {
-  const { value, options, selected, select } = usePlayStore(
+  const { value, options, selected, select, step } = usePlayStore(
     useShallow((s) => ({
       value: s.params[param],
       options: s.options[param],
       selected: s.selected === param,
       select: s.select,
+      step: s.step,
     })),
   )
   const i = options.indexOf(value)
@@ -101,6 +109,13 @@ function Dial({ param }: { param: ParamKey }) {
         <span className="dial-side">{next ?? ''}</span>
       </div>
       <div className="dial-unit">{unit}</div>
+      {/* タッチ用（マウスの環境では CSS で隠す） */}
+      <button className="dial-step up only-touch" aria-label={`${label}を上げる`} onClick={() => step(param, 1)}>
+        ▲
+      </button>
+      <button className="dial-step down only-touch" aria-label={`${label}を下げる`} onClick={() => step(param, -1)}>
+        ▼
+      </button>
     </div>
   )
 }

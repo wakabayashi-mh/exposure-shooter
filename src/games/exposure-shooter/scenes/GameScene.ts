@@ -1,18 +1,22 @@
 import Phaser from 'phaser'
-import { DIFFICULTIES, EXPOSURE, FEEDBACK, STAGE, type Difficulty } from '../logic/constants'
+import { DIFFICULTIES, EXPOSURE, FEEDBACK, MODES, REVIEW_SPAWN_INTERVAL_SEC, STAGE } from '../logic/constants'
 import { EXPOSURE_IDLE, prepProgress, press, release, tick, type ExposureState } from '../logic/exposure'
 import { DEVIATION_LABELS, judge, resolveTolerance, type ExposureInput, type JudgeResult } from '../logic/judge'
 import type { Condition } from '../logic/master'
 import { applyBreach, applyShot, createSession, type SessionState } from '../logic/session'
+import { hardSpawnIntervalSec, pickHardEnemy, toleranceFor } from '../logic/modes'
 import { pickEnemy, rollLowTarget } from '../logic/spawn'
+import type { PlayConfig } from '../playConfig'
 import { usePlayStore } from '../playStore'
 import { DEFENSE_Y, depthAt, drawFloor, GAME_HEIGHT, project, VP } from './projection'
 
 export interface GameSceneData {
+  config: PlayConfig
+  /** 出現させる敵の候補。復習モードではこの順に 1 体ずつ出す */
   pool: Condition[]
   masSeries: number[]
-  difficulty: Difficulty
   stageName: string
+  modeLabel: string
 }
 
 /** キャラの大きさ（z = 1 のとき）。足元が原点 */
@@ -58,6 +62,8 @@ export class GameScene extends Phaser.Scene {
   private nextSpawnIn = 0
   private lowSpawned = 0
   private lowTarget = 1
+  /** 復習モードでまだ出していない敵 */
+  private reviewQueue: Condition[] = []
   private uidSeq = 0
   private ended = false
   private lastHudKey = ''
@@ -71,11 +77,12 @@ export class GameScene extends Phaser.Scene {
     this.enemies = []
     this.locked = null
     this.exposure = EXPOSURE_IDLE
-    this.session = createSession(DIFFICULTIES[data.difficulty].lives)
+    this.session = createSession(DIFFICULTIES[data.config.difficulty].lives)
     this.realMs = 0
     this.nextSpawnIn = STAGE.firstSpawnSec
     this.lowSpawned = 0
     this.lowTarget = rollLowTarget(Math.random)
+    this.reviewQueue = [...data.pool]
     this.ended = false
     this.lastHudKey = ''
   }
@@ -89,18 +96,17 @@ export class GameScene extends Phaser.Scene {
       .setDepth(1000)
       .setAlpha(0)
 
-    const cfg = DIFFICULTIES[this.stage.difficulty]
+    const cfg = DIFFICULTIES[this.stage.config.difficulty]
     usePlayStore.getState().setHud({
       status: 'playing',
       stageName: this.stage.stageName,
-      difficulty: this.stage.difficulty,
+      modeLabel: this.stage.modeLabel,
       lives: cfg.lives,
       maxLives: cfg.lives,
       score: 0,
       combo: 0,
       target: null,
       exposure: { phase: 'idle', progress: 0 },
-      result: null,
     })
   }
 
@@ -111,11 +117,21 @@ export class GameScene extends Phaser.Scene {
     this.pointer = p
   }
 
+  /** タッチ：タップした位置の敵にロックオンする（タップでは照準位置を残さない） */
+  tapAt(p: { x: number; y: number }) {
+    if (this.ended || this.exposure.phase !== 'idle') return
+    // 指より小さい敵も狙えるように、当たり判定を少し広げる
+    const hit = [...this.enemies]
+      .sort((a, b) => b.t - a.t)
+      .find((e) => Phaser.Geom.Rectangle.Inflate(this.bounds(e), 24, 24).contains(p.x, p.y))
+    if (hit) this.locked = hit
+  }
+
   /** 左クリック / Space を押した：準備開始。ここでロックオン対象を固定する */
   pressTrigger() {
     if (this.ended || this.exposure.phase !== 'idle') return
     if (!this.locked) {
-      usePlayStore.getState().showToast('敵にカーソルを重ねてロックオン')
+      usePlayStore.getState().showToast('先に敵をロックオンしてください')
       return
     }
     this.exposure = press(this.exposure)
@@ -142,7 +158,8 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     if (this.ended) return
-    const cfg = DIFFICULTIES[this.stage.difficulty]
+    const cfg = DIFFICULTIES[this.stage.config.difficulty]
+    const mode = this.stage.config.mode
     this.realMs += delta
 
     // ロックオン中はスロー（敵の接近・出現・床の流れ）。曝射スイッチと制限時間は実時間
@@ -152,9 +169,14 @@ export class GameScene extends Phaser.Scene {
     drawFloor(this.floor, this.floorOffset)
 
     this.nextSpawnIn -= gameDt
-    if (this.nextSpawnIn <= 0 && this.enemies.length < cfg.maxEnemies) {
+    if (this.nextSpawnIn <= 0 && this.enemies.length < MODES[mode].maxEnemies) {
       this.spawn()
-      this.nextSpawnIn = STAGE.spawnIntervalSec
+      this.nextSpawnIn =
+        mode === 'hard'
+          ? hardSpawnIntervalSec(this.realMs / 1000)
+          : mode === 'review'
+            ? REVIEW_SPAWN_INTERVAL_SEC
+            : STAGE.spawnIntervalSec
     }
 
     for (const e of [...this.enemies]) {
@@ -177,7 +199,11 @@ export class GameScene extends Phaser.Scene {
 
     this.drawLock()
 
-    if (this.realMs >= STAGE.durationSec * 1000) {
+    // 終わり方：スタンダードは制限時間、復習は全員を片付けたとき、ハードはライフが尽きるまで
+    const done =
+      (mode === 'standard' && this.realMs >= STAGE.durationSec * 1000) ||
+      (mode === 'review' && this.reviewQueue.length === 0 && this.enemies.length === 0)
+    if (done) {
       this.finish('cleared')
       return
     }
@@ -186,18 +212,29 @@ export class GameScene extends Phaser.Scene {
 
   // ─── 敵 ────────────────────────────────────────────────
 
+  private pickNext(): Condition | undefined {
+    const onField = this.enemies.map((e) => e.cond.id)
+    switch (this.stage.config.mode) {
+      case 'standard':
+        return pickEnemy(
+          this.stage.pool,
+          {
+            elapsedRatio: this.realMs / (STAGE.durationSec * 1000),
+            lowSpawned: this.lowSpawned,
+            lowTarget: this.lowTarget,
+            onField,
+          },
+          Math.random,
+        )
+      case 'hard':
+        return pickHardEnemy(this.stage.pool, this.realMs / 1000, onField, Math.random)
+      case 'review':
+        return this.reviewQueue.shift()
+    }
+  }
+
   private spawn() {
-    const elapsedRatio = this.realMs / (STAGE.durationSec * 1000)
-    const cond = pickEnemy(
-      this.stage.pool,
-      {
-        elapsedRatio,
-        lowSpawned: this.lowSpawned,
-        lowTarget: this.lowTarget,
-        onField: this.enemies.map((e) => e.cond.id),
-      },
-      Math.random,
-    )
+    const cond = this.pickNext()
     if (!cond) return
     if (cond.frequency === 'low') this.lowSpawned++
 
@@ -299,10 +336,10 @@ export class GameScene extends Phaser.Scene {
   private fire() {
     const target = this.locked
     if (!target) return
-    const cfg = DIFFICULTIES[this.stage.difficulty]
+    const { mode, difficulty } = this.stage.config
     const { params } = usePlayStore.getState()
     const input: ExposureInput = { ...params }
-    const tol = resolveTolerance(target.cond, { kv: cfg.kvTol, masSteps: cfg.masTolSteps })
+    const tol = resolveTolerance(target.cond, toleranceFor(mode, difficulty))
     const result = judge(target.cond, input, tol, this.stage.masSeries)
 
     const before = this.session.score
@@ -315,7 +352,7 @@ export class GameScene extends Phaser.Scene {
         remainingRatio: 1 - this.progressOf(target),
         elapsedMs: this.realMs - target.spawnedAt,
       },
-      cfg.missCostsLife,
+      DIFFICULTIES[difficulty].missCostsLife,
     )
     this.removeEnemy(target)
     this.playBeam(target)
@@ -409,8 +446,23 @@ export class GameScene extends Phaser.Scene {
 
   // ─── HUD と終了 ─────────────────────────────────────────
 
+  /** 上段の時計（スタンダード: 残り時間、ハード: 経過時間、復習: 残りの敵の数） */
+  private clock(): { label: string; warn: boolean } {
+    const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
+    switch (this.stage.config.mode) {
+      case 'standard': {
+        const left = Math.max(0, Math.ceil(STAGE.durationSec - this.realMs / 1000))
+        return { label: mmss(left), warn: left <= 10 }
+      }
+      case 'hard':
+        return { label: `経過 ${mmss(Math.floor(this.realMs / 1000))}`, warn: false }
+      case 'review':
+        return { label: `残り ${this.reviewQueue.length + this.enemies.length} 体`, warn: false }
+    }
+  }
+
   private pushHud() {
-    const timeLeftSec = Math.max(0, Math.ceil(STAGE.durationSec - this.realMs / 1000))
+    const clock = this.clock()
     const target = this.locked
       ? {
           condition: this.locked.cond,
@@ -421,10 +473,10 @@ export class GameScene extends Phaser.Scene {
     const exposure = { phase: this.exposure.phase, progress: prepProgress(this.exposure, EXPOSURE) }
     const s = this.session
     // 変化があったときだけ React に流す
-    const key = JSON.stringify([timeLeftSec, s.lives, s.score, s.combo, target?.condition.id, target?.remainingSec, target?.fixed, exposure])
+    const key = JSON.stringify([clock, s.lives, s.score, s.combo, target?.condition.id, target?.remainingSec, target?.fixed, exposure])
     if (key === this.lastHudKey) return
     this.lastHudKey = key
-    usePlayStore.getState().setHud({ timeLeftSec, lives: s.lives, score: s.score, combo: s.combo, target, exposure })
+    usePlayStore.getState().setHud({ clock, lives: s.lives, score: s.score, combo: s.combo, target, exposure })
   }
 
   private finish(status: 'cleared' | 'gameover') {
@@ -432,19 +484,22 @@ export class GameScene extends Phaser.Scene {
     this.ended = true
     this.locked = null
     this.lockGfx.clear()
-    this.pushHudFinal(status)
-  }
-
-  private pushHudFinal(status: 'cleared' | 'gameover') {
     const s = this.session
     usePlayStore.getState().setHud({
       status,
+      clock: this.clock(),
       lives: Math.max(0, s.lives),
       score: s.score,
       combo: s.combo,
       target: null,
       exposure: { phase: 'idle', progress: 0 },
-      result: s,
+      lastResult: {
+        config: this.stage.config,
+        status,
+        session: s,
+        elapsedSec: this.realMs / 1000,
+        conditions: this.stage.pool,
+      },
     })
   }
 }

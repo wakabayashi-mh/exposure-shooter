@@ -40,7 +40,7 @@ button:hover { border-color: var(--soft); }
 button.primary { background: var(--cheek); border-color: var(--cheek); }
 button.primary:hover { filter: brightness(1.1); }
 
-.screen { height: 100%; display: flex; flex-direction: column; }
+.screen { height: 100%; display: flex; flex-direction: column; overflow: auto; }
 .screen.center { align-items: center; justify-content: center; }
 
 /* タイトル */
@@ -235,9 +235,114 @@ td.added { color: var(--accent); }
   text-align: center;
 }
 .end-card h1 { font-size: 32px; }
-.end-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 20px 0; }
-.stat-label { color: var(--soft); font-size: 13px; }
-.stat-value { font-size: 28px; }
-.stat-sub { font-size: 11px; }
-.review { text-align: left; max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
 .end-card .actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+.end-overlay.banner { background: #070c1499; pointer-events: none; }
+.end-banner {
+  font-size: 88px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  animation: banner-in 0.4s ease-out;
+}
+.end-banner.cleared { color: var(--accent); text-shadow: 0 0 30px #f5c56a88; }
+.end-banner.gameover { color: var(--cheek); text-shadow: 0 0 30px #c96b7b88; }
+@keyframes banner-in { from { transform: scale(1.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+button:disabled { opacity: 0.4; cursor: default; }
+button:disabled:hover { border-color: var(--line); }
+
+/* モード選択・ステージ選択 */
+.select-body { padding: 24px 40px; display: flex; flex-direction: column; gap: 28px; max-width: 1100px; width: 100%; margin: 0 auto; }
+.segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.segmented button { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; text-align: left; }
+.segmented button.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.seg-label { font-size: 17px; font-weight: 600; }
+.seg-note { font-size: 13px; color: var(--soft); }
+.mode-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.mode-card {
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-start; text-align: left;
+  padding: 24px; min-height: 190px; border-radius: 12px;
+}
+.mode-card:not(:disabled):hover { border-color: var(--accent); }
+.mode-title { font-size: 24px; font-weight: 700; }
+.mode-desc { color: var(--soft); line-height: 1.6; }
+.mode-best { margin-top: auto; color: var(--accent); }
+.stage-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  padding: 24px 40px; max-width: 1100px; width: 100%; margin: 0 auto;
+}
+.stage-card {
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-start; text-align: left;
+  padding: 20px 24px; min-height: 160px; border-radius: 12px;
+}
+.stage-card:not(:disabled):hover { border-color: var(--accent); }
+.stage-no { color: var(--soft); font-size: 13px; letter-spacing: 0.1em; }
+.stage-title { font-size: 26px; font-weight: 700; }
+.stage-best { margin-top: auto; display: flex; gap: 10px; align-items: center; }
+.cleared { color: var(--bg); background: var(--accent); border-radius: 4px; padding: 1px 8px; font-size: 12px; font-weight: 700; }
+
+/* 結果・復習 */
+.result { padding: 24px 40px; gap: 18px; max-width: 1180px; width: 100%; margin: 0 auto; }
+.result-head { display: flex; align-items: center; gap: 32px; }
+.result-head h1 { font-size: 34px; }
+.result-status { font-size: 18px; font-weight: 700; letter-spacing: 0.1em; }
+.result-status.cleared { color: var(--accent); }
+.result-status.gameover { color: var(--cheek); }
+.rank {
+  width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 56px; font-weight: 800; border: 4px solid currentColor;
+}
+.rank-S { color: var(--accent); }
+.rank-A { color: var(--bone); }
+.rank-B { color: var(--soft); }
+.rank-C { color: #4d6079; }
+.new-best { color: var(--bg); background: var(--accent); border-radius: 6px; padding: 6px 14px; font-weight: 700; }
+.result-stats { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 12px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+.stat-label { color: var(--soft); font-size: 13px; }
+.stat-value { font-size: 30px; }
+.stat-sub { font-size: 12px; }
+.stat.warn .stat-value { color: var(--cheek); }
+.review-list { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.review-list h2 { margin-top: 0; }
+.review-list .table-wrap { flex: 1; }
+td.answer { color: var(--accent); }
+.result-actions { display: flex; gap: 12px; justify-content: flex-end; }
+.result-actions button { padding: 12px 22px; font-size: 16px; }
+
+/* タッチ（スマホ）向け */
+.only-touch { display: none; }
+@media (pointer: coarse) {
+  .only-touch { display: revert; }
+  .only-mouse { display: none; }
+  .help.only-touch { display: block; }
+}
+.dial { position: relative; }
+.dial-step {
+  position: absolute; right: 8px; width: 64px; height: 64px; padding: 0;
+  font-size: 26px; border-radius: 10px; touch-action: manipulation;
+}
+.dial-step.up { top: 10px; }
+.dial-step.down { bottom: 10px; }
+@media (pointer: coarse) {
+  .dial { align-items: flex-start; padding-left: 16px; }
+  .dial-values { gap: 8px; }
+  .dial-side { display: none; }
+  .trigger { touch-action: none; }
+}
+.play-stage { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; }
+html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+
+/* スマホを縦に持っているときは横向きを促す */
+.rotate-hint { display: none; }
+@media (pointer: coarse) and (orientation: portrait) {
+  .rotate-hint {
+    display: flex; position: fixed; inset: 0; z-index: 100; background: var(--bg);
+    flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    font-size: 20px; text-align: center; padding: 24px;
+  }
+  .rotate-hint .rotate-icon { font-size: 56px; }
+}
+@media (pointer: coarse) {
+  .hud-target .help, .hud-target p.small { font-size: 22px; line-height: 1.5; }
+  .hud-toast { font-size: 26px; }
+}

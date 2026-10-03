@@ -17,14 +17,44 @@ export interface DifficultyConfig {
   lives: number
   /** MISS でライフを減らすか（ビギナーだけ減らさない, SPEC 7.5） */
   missCostsLife: boolean
-  /** 同時に出る敵の上限（SPEC 7.1） */
-  maxEnemies: number
 }
 
 export const DIFFICULTIES: Record<Difficulty, DifficultyConfig> = {
-  beginner: { label: 'ビギナー', kvTol: 5, masTolSteps: 1, slowFactor: 0.35, lives: 4, missCostsLife: false, maxEnemies: 3 },
-  standard: { label: 'スタンダード', kvTol: 5, masTolSteps: 1, slowFactor: 0.5, lives: 5, missCostsLife: true, maxEnemies: 3 },
-  hard: { label: 'ハード', kvTol: 2, masTolSteps: 0, slowFactor: 0.8, lives: 3, missCostsLife: true, maxEnemies: 5 },
+  beginner: { label: 'ビギナー', kvTol: 5, masTolSteps: 1, slowFactor: 0.35, lives: 4, missCostsLife: false },
+  standard: { label: 'スタンダード', kvTol: 5, masTolSteps: 1, slowFactor: 0.5, lives: 5, missCostsLife: true },
+  hard: { label: 'ハード', kvTol: 2, masTolSteps: 0, slowFactor: 0.8, lives: 3, missCostsLife: true },
+}
+
+export type Mode = 'standard' | 'hard' | 'review'
+
+export const MODES: Record<Mode, { label: string; maxEnemies: number }> = {
+  /** 同時に出る敵の上限（SPEC 7.1: スタンダード 3、ハード 5） */
+  standard: { label: 'スタンダード', maxEnemies: 3 },
+  hard: { label: 'ハード（無制限）', maxEnemies: 5 },
+  /** 復習は外した部位を 1 体ずつ確かめるので少なめにする */
+  review: { label: '復習', maxEnemies: 2 },
+}
+
+/** ハードモード（SPEC 6.2）：時間とともに出現間隔が短くなり、low が出やすくなる */
+export const HARD = {
+  spawnIntervalStartSec: 3.0,
+  spawnIntervalMinSec: 1.2,
+  /** 経過 1 秒ごとに縮める出現間隔 [秒] */
+  intervalShrinkPerSec: 0.015,
+  /** low の出現の重み（high 3・mid 2 に対して） */
+  lowWeightStart: 0.5,
+  lowWeightMax: 3,
+  lowWeightGrowPerSec: 1 / 60,
+}
+
+/** 復習モードの出現間隔 [秒, ゲーム内時間] */
+export const REVIEW_SPAWN_INTERVAL_SEC = 2.5
+
+/** ランクの閾値（未決事項: 撃破率と PERFECT 率で決める。ゲームオーバーは C） */
+export const RANK = {
+  S: { killRate: 0.9, perfectRate: 0.6 },
+  A: { killRate: 0.8 },
+  B: { killRate: 0.6 },
 }
 
 /** スコア（SPEC 7.6） */
