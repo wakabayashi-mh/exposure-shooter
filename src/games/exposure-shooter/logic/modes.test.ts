@@ -38,9 +38,9 @@ describe('toleranceFor', () => {
 
 describe('ハードモードの出現', () => {
   it('時間とともに出現間隔が短くなり、下限で止まる', () => {
-    expect(hardSpawnIntervalSec(0)).toBe(3)
-    expect(hardSpawnIntervalSec(60)).toBeCloseTo(2.1)
-    expect(hardSpawnIntervalSec(1000)).toBe(1.2)
+    expect(hardSpawnIntervalSec(0)).toBe(4.5)
+    expect(hardSpawnIntervalSec(60)).toBeCloseTo(3.6)
+    expect(hardSpawnIntervalSec(1000)).toBe(2.5)
   })
 
   it('時間とともに low が出やすくなり、上限で止まる', () => {

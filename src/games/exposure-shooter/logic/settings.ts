@@ -7,7 +7,7 @@ import { CONTROLS, DIFFICULTIES, EXPOSURE, FEEDBACK, KV_DIAL, type Difficulty } 
 export interface GameSettings {
   /** 許容値（SPEC 4.4） */
   tolerance: Record<Difficulty, { kvTol: number; masTolSteps: number }>
-  /** ロックオン中の時間の流れ（SPEC 7.2） */
+  /** 敵の速さ（時間の流れ）。1 で等速、小さいほどゆっくり */
   slowFactor: Record<Difficulty, number>
   /** 準備（ロートアップ）時間 [ms]、0.5〜2.0 秒（SPEC 7.4） */
   prepMs: number
@@ -19,7 +19,7 @@ export interface GameSettings {
   keys: Record<KeyAction, string>
   /** MISS の吹き出しを出す時間 [ms]（SPEC 7.5） */
   missBubbleMs: number
-  /** 音量 0〜1（効果音はフェーズ 6） */
+  /** 効果音の音量 0〜1 */
   volume: number
 }
 

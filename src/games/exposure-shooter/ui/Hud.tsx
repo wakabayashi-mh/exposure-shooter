@@ -15,7 +15,7 @@ export function TopBar() {
         <span className="muted">{modeLabel}</span>
         <span className={`mono time${clock.warn ? ' warn' : ''}`}>{clock.label}</span>
       </div>
-      <div className="hud-lives" aria-label={`ライフ ${lives}`}>
+      <div className={`hud-lives${lives === 1 ? ' last' : ''}`} aria-label={`ライフ ${lives}`}>
         {Array.from({ length: maxLives }, (_, i) => (
           <span key={i} className={i < lives ? 'life on' : 'life'}>
             ♥

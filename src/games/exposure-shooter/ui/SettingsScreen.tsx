@@ -5,6 +5,7 @@ import { KEY_ACTION_LABELS, keyLabel, PREP_RANGE_MS, type GameSettings, type Key
 import { useMasterStore } from '../masterStore'
 import { useRankingStore } from '../rankingStore'
 import { useSettingsStore } from '../settingsStore'
+import { sfx } from '../sound'
 
 const DIFFS = Object.keys(DIFFICULTIES) as Difficulty[]
 
@@ -61,7 +62,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
                 <th>難易度</th>
                 <th>kV 許容（±kV）</th>
                 <th>mAs 許容（±段）</th>
-                <th>ロックオン中の時間の流れ</th>
+                <th>敵の速さ（小さいほどゆっくり）</th>
               </tr>
             </thead>
             <tbody>
@@ -128,9 +129,9 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
             </span>
           </label>
           <label>
-            音量（効果音は今後追加）
+            効果音の音量
             <span>
-              <input type="range" min={0} max={1} step={0.05} value={settings.volume} onChange={(e) => set('volume', Number(e.target.value))} />
+              <input type="range" min={0} max={1} step={0.05} value={settings.volume} onChange={(e) => set('volume', Number(e.target.value))} onPointerUp={() => sfx.ready()} />
               <span className="mono"> {Math.round(settings.volume * 100)}%</span>
             </span>
           </label>

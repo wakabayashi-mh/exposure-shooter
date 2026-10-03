@@ -6,10 +6,12 @@ import type { PlayConfig } from '../games/exposure-shooter/playConfig'
 import { ShooterRoot } from '../games/exposure-shooter/ui/ShooterRoot'
 
 /**
- * 試作を友達に遊んでもらう間だけ：開いたらメニューを飛ばして、このステージをすぐ始める。
- * スマホは横向きになってから始まる。やめるとモード選択に戻る。普段の動きに戻すときは null にする。
+ * 試作を友達に遊んでもらう間だけ：ブラウザ版は開いたらメニューを飛ばして、このステージをすぐ始める。
+ * スマホは横向きになってから始まる。やめるとステージ選択に戻る。インストール版はふつうにタイトルから始まる。
+ * ブラウザ版も普段の動きに戻すときは null にする。
  */
-const QUICK_START: PlayConfig | null = { mode: 'standard', difficulty: 'standard', region: 'chest_abdomen' }
+const QUICK_START: PlayConfig | null =
+  import.meta.env.MODE === 'web' ? { mode: 'standard', difficulty: 'standard', region: 'chest_abdomen' } : null
 
 type Screen = 'title' | 'exposure-shooter'
 

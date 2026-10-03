@@ -11,7 +11,7 @@ export interface DifficultyConfig {
   kvTol: number
   /** mAs 許容 [±段] */
   masTolSteps: number
-  /** ロックオン中の時間の流れ（SPEC 7.2） */
+  /** 敵の時間の流れ（SPEC 7.2 はロックオン中だけだが、試遊で難しすぎたので常にかける） */
   slowFactor: number
   /** ライフ（SPEC 7.7） */
   lives: number
@@ -28,17 +28,17 @@ export const DIFFICULTIES: Record<Difficulty, DifficultyConfig> = {
 export type Mode = 'standard' | 'hard' | 'review'
 
 export const MODES: Record<Mode, { label: string; maxEnemies: number }> = {
-  /** 同時に出る敵の上限（SPEC 7.1: スタンダード 3、ハード 5） */
-  standard: { label: 'スタンダード', maxEnemies: 3 },
-  hard: { label: 'ハード（無制限）', maxEnemies: 5 },
+  /** 同時に出る敵の上限（SPEC 7.1 はスタンダード 3・ハード 5。試遊で難しすぎたので減らした） */
+  standard: { label: 'スタンダード', maxEnemies: 2 },
+  hard: { label: 'ハード（無制限）', maxEnemies: 3 },
   /** 復習は外した部位を 1 体ずつ確かめるので少なめにする */
   review: { label: '復習', maxEnemies: 2 },
 }
 
 /** ハードモード（SPEC 6.2）：時間とともに出現間隔が短くなり、low が出やすくなる */
 export const HARD = {
-  spawnIntervalStartSec: 3.0,
-  spawnIntervalMinSec: 1.2,
+  spawnIntervalStartSec: 4.5,
+  spawnIntervalMinSec: 2.5,
   /** 経過 1 秒ごとに縮める出現間隔 [秒] */
   intervalShrinkPerSec: 0.015,
   /** low の出現の重み（high 3・mid 2 に対して） */
@@ -88,7 +88,7 @@ export const STAGE = {
   /** 敵が奥から防衛ラインに着くまで [秒, ゲーム内時間] */
   approachSec: 10,
   /** 出現間隔 [秒, ゲーム内時間] */
-  spawnIntervalSec: 3.2,
+  spawnIntervalSec: 5,
   firstSpawnSec: 1,
   /** ステージのこの割合を過ぎたら low を混ぜる */
   lowFromRatio: 0.7,

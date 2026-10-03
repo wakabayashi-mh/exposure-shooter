@@ -9,7 +9,9 @@ import { hardSpawnIntervalSec, pickHardEnemy, toleranceFor } from '../logic/mode
 import { pickEnemy, rollLowTarget } from '../logic/spawn'
 import type { PlayConfig } from '../playConfig'
 import { FACES, hasCharacter, loadCharacterImage, textureKey, type Face } from '../characters'
+import type { Held } from '../../../core/audio/synth'
 import { usePlayStore } from '../playStore'
+import { sfx } from '../sound'
 import { DEFENSE_Y, depthAt, drawFloor, GAME_HEIGHT, project, VP } from './projection'
 
 export interface GameSceneData {
@@ -75,6 +77,11 @@ export class GameScene extends Phaser.Scene {
   /** キャラ画像のテクスチャを作り終えたか（終わるまで敵を出さない） */
   private charactersReady = false
   private lastHudKey = ''
+  /** 準備中のロートアップ音 */
+  private rotor: Held | null = null
+  /** ロックオンが変わった瞬間を知るため */
+  private lastLocked: Enemy | null = null
+  private redFlash!: Phaser.GameObjects.Rectangle
 
   constructor() {
     super('game')
@@ -92,6 +99,8 @@ export class GameScene extends Phaser.Scene {
     this.lowTarget = rollLowTarget(Math.random)
     this.reviewQueue = [...data.pool]
     this.ended = false
+    this.rotor = null
+    this.lastLocked = null
     this.charactersReady = false
     this.lastHudKey = ''
   }
@@ -105,6 +114,22 @@ export class GameScene extends Phaser.Scene {
       .setDepth(1000)
       .setAlpha(0)
     void this.loadCharacters()
+    this.redFlash = this.add
+      .rectangle(0, 0, this.scale.width, this.scale.height, 0xc96b7b)
+      .setOrigin(0)
+      .setDepth(1001)
+      .setAlpha(0)
+    // 撃破の火花に使う小さな丸
+    if (!this.textures.exists('spark')) {
+      const g = this.make.graphics({ x: 0, y: 0 }, false)
+      g.fillStyle(0xffffff).fillCircle(6, 6, 6)
+      g.generateTexture('spark', 12, 12)
+      g.destroy()
+    }
+    // 終わり方に関係なく、シーンが閉じたらうなり音を止める
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.stopRotor())
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => this.stopRotor())
+    this.showStartBanner()
 
     const cfg = DIFFICULTIES[this.stage.config.difficulty]
     usePlayStore.getState().setHud({
@@ -140,6 +165,11 @@ export class GameScene extends Phaser.Scene {
     this.charactersReady = true
   }
 
+  /** 敵の時間の流れ（設定の値。試遊で難しすぎたので、ロックオンしていなくても常にかける） */
+  private slow() {
+    return this.stage.settings.slowFactor[this.stage.config.difficulty]
+  }
+
   /** 準備時間は設定から、管球負荷までの時間は固定 */
   private timing() {
     return { prepMs: this.stage.settings.prepMs, overholdMs: EXPOSURE.overholdMs }
@@ -170,6 +200,12 @@ export class GameScene extends Phaser.Scene {
       return
     }
     this.exposure = press(this.exposure)
+    this.rotor = sfx.prepStart(this.stage.settings.prepMs)
+  }
+
+  private stopRotor() {
+    this.rotor?.stop()
+    this.rotor = null
   }
 
   /** 左クリック / Space を離した：準備完了なら曝射 */
@@ -177,8 +213,15 @@ export class GameScene extends Phaser.Scene {
     if (this.ended) return
     const { event } = release(this.exposure)
     this.exposure = EXPOSURE_IDLE
-    if (event === 'cancel') usePlayStore.getState().showToast('準備未完了')
-    if (event === 'expose') this.fire()
+    this.stopRotor()
+    if (event === 'cancel') {
+      sfx.cancel()
+      usePlayStore.getState().showToast('準備未完了')
+    }
+    if (event === 'expose') {
+      sfx.expose()
+      this.fire()
+    }
   }
 
   /** Tab：近い順に次の敵へロックオンを切り替える */
@@ -196,8 +239,8 @@ export class GameScene extends Phaser.Scene {
     const mode = this.stage.config.mode
     this.realMs += delta
 
-    // ロックオン中はスロー（敵の接近・出現・床の流れ）。曝射スイッチと制限時間は実時間
-    const gameDt = (delta / 1000) * (this.locked ? this.stage.settings.slowFactor[this.stage.config.difficulty] : 1)
+    // 敵の接近・出現・床の流れは常にスロー（ロックオン中と同じ速さ）。曝射スイッチと制限時間は実時間
+    const gameDt = (delta / 1000) * this.slow()
 
     this.floorOffset = (this.floorOffset + gameDt * 1.6) % 1
     drawFloor(this.floor, this.floorOffset)
@@ -225,11 +268,19 @@ export class GameScene extends Phaser.Scene {
     const prevPhase = this.exposure.phase
     const r = tick(this.exposure, delta, this.timing())
     this.exposure = r.state
-    if (r.event === 'overheat') usePlayStore.getState().showToast('管球負荷：準備を解除しました')
+    if (r.event === 'ready') sfx.ready()
+    if (r.event === 'overheat') {
+      this.stopRotor()
+      sfx.overheat()
+      usePlayStore.getState().showToast('管球負荷：準備を解除しました')
+    }
     if (prevPhase !== 'idle' && !this.locked) {
       // 準備中に対象が防衛ラインを越えた
       this.exposure = EXPOSURE_IDLE
+      this.stopRotor()
     }
+    if (this.locked && this.locked !== this.lastLocked) sfx.lockOn()
+    this.lastLocked = this.locked
 
     this.drawLock()
 
@@ -361,7 +412,8 @@ export class GameScene extends Phaser.Scene {
     for (const e of this.enemies) this.setFace(e, e === this.locked ? 'lockon' : 'approach')
     if (!this.locked) return
     const b = this.bounds(this.locked)
-    const pad = 8
+    // 照準の枠はゆっくり脈打たせる
+    const pad = 8 + Math.sin(this.realMs / 110) * 3
     const len = Math.max(12, Math.min(b.width, b.height) * 0.25)
     const fixed = this.exposure.phase !== 'idle'
     g.lineStyle(4, fixed ? 0xc96b7b : 0xf5c56a, 1)
@@ -387,6 +439,7 @@ export class GameScene extends Phaser.Scene {
     this.session = applyBreach(this.session, e.cond.id, this.realMs - e.spawnedAt)
     this.tweens.add({ targets: e.view, alpha: 0, y: e.view.y + 30, duration: 300, onComplete: () => e.view.destroy() })
     this.cameras.main.shake(180, 0.006)
+    sfx.breach()
     usePlayStore.getState().showToast(`${e.cond.part} ${e.cond.view} が防衛ラインに到達`)
     if (this.session.lives <= 0) this.finish('gameover')
   }
@@ -419,8 +472,12 @@ export class GameScene extends Phaser.Scene {
 
     if (result.result === 'MISS') {
       this.playMiss(target, input, result)
+      sfx.miss()
     } else {
       this.playDefeat(target, result.result, this.session.score - before)
+      if (result.result === 'PERFECT') sfx.perfect()
+      else sfx.good()
+      if (this.session.combo > 0 && this.session.combo % 5 === 0) this.showCombo(this.session.combo)
     }
     if (this.session.lives <= 0) this.finish('gameover')
   }
@@ -449,6 +506,20 @@ export class GameScene extends Phaser.Scene {
     })
     const color = label === 'PERFECT' ? '#f5c56a' : '#e8eef4'
     const b = this.bounds(e)
+    // 火花（PERFECT は多め）
+    const sparks = this.add
+      .particles(b.centerX, b.centerY, 'spark', {
+        speed: { min: 120, max: label === 'PERFECT' ? 420 : 280 },
+        lifespan: 600,
+        scale: { start: 0.9, end: 0 },
+        alpha: { start: 1, end: 0 },
+        tint: label === 'PERFECT' ? [0xf5c56a, 0xffffff, 0xffe29a] : [0xe8eef4, 0x8fd0ff],
+        blendMode: Phaser.BlendModes.ADD,
+        emitting: false,
+      })
+      .setDepth(940)
+    sparks.explode(label === 'PERFECT' ? 36 : 20)
+    this.time.delayedCall(800, () => sparks.destroy())
     const text = this.add
       .text(b.centerX, b.y, `${label}  +${points}`, { fontFamily: FONT, fontSize: '30px', color, fontStyle: 'bold', stroke: '#0f1826', strokeThickness: 6 })
       .setOrigin(0.5)
@@ -459,6 +530,8 @@ export class GameScene extends Phaser.Scene {
   /** MISS：敵は消え、その場で「あなたの条件」と「正解条件」を並べた吹き出しを出す（SPEC 7.5） */
   private playMiss(e: Enemy, input: ExposureInput, result: JudgeResult) {
     this.cameras.main.shake(120, 0.004)
+    this.redFlash.setAlpha(0.28)
+    this.tweens.add({ targets: this.redFlash, alpha: 0, duration: 450, delay: 120 })
     this.tweens.add({
       targets: e.view,
       alpha: 0,
@@ -508,6 +581,49 @@ export class GameScene extends Phaser.Scene {
     )
   }
 
+  // ─── 演出 ──────────────────────────────────────────────
+
+  /** 始まりの合図 */
+  private showStartBanner() {
+    const title = this.add
+      .text(VP.x, 300, `${this.stage.stageName}
+START!`, {
+        fontFamily: FONT,
+        fontSize: '60px',
+        color: '#f5c56a',
+        fontStyle: 'bold',
+        align: 'center',
+        stroke: '#0f1826',
+        strokeThickness: 10,
+      })
+      .setOrigin(0.5)
+      .setDepth(1100)
+      .setScale(1.5)
+      .setAlpha(0)
+    this.tweens.add({ targets: title, scale: 1, alpha: 1, duration: 280, ease: 'Back.easeOut' })
+    this.tweens.add({ targets: title, alpha: 0, y: 260, delay: 1100, duration: 400, onComplete: () => title.destroy() })
+    sfx.start()
+  }
+
+  /** 5 コンボごとの表示 */
+  private showCombo(combo: number) {
+    const t = this.add
+      .text(VP.x, 170, `${combo} COMBO!`, {
+        fontFamily: FONT,
+        fontSize: '44px',
+        color: '#ffe29a',
+        fontStyle: 'bold',
+        stroke: '#0f1826',
+        strokeThickness: 8,
+      })
+      .setOrigin(0.5)
+      .setDepth(1100)
+      .setScale(0.6)
+    this.tweens.add({ targets: t, scale: 1.1, duration: 220, ease: 'Back.easeOut' })
+    this.tweens.add({ targets: t, alpha: 0, y: 140, delay: 700, duration: 350, onComplete: () => t.destroy() })
+    sfx.combo()
+  }
+
   // ─── HUD と終了 ─────────────────────────────────────────
 
   /** 上段の時計（スタンダード: 残り時間、ハード: 経過時間、復習: 残りの敵の数） */
@@ -530,7 +646,7 @@ export class GameScene extends Phaser.Scene {
     const target = this.locked
       ? {
           condition: this.locked.cond,
-          remainingSec: Math.max(0, Math.round((STAGE.approachSec - this.locked.t) * 10) / 10),
+          remainingSec: Math.max(0, Math.round(((STAGE.approachSec - this.locked.t) / this.slow()) * 10) / 10),
           fixed: this.exposure.phase !== 'idle',
         }
       : null
@@ -546,6 +662,9 @@ export class GameScene extends Phaser.Scene {
   private finish(status: 'cleared' | 'gameover') {
     if (this.ended) return
     this.ended = true
+    this.stopRotor()
+    if (status === 'cleared') sfx.clear()
+    else sfx.gameOver()
     this.locked = null
     this.lockGfx.clear()
     const s = this.session

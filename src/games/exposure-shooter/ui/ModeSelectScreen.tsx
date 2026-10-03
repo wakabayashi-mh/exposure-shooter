@@ -47,7 +47,7 @@ export function ModeSelectScreen({
   const note = (d: Difficulty) => {
     const t = settings.tolerance[d]
     const tol = `kV ±${t.kvTol}・mAs ${t.masTolSteps === 0 ? '完全一致' : `±${t.masTolSteps} 段`}`
-    return d === 'beginner' ? `${tol}。MISS でライフが減らない` : `${tol}。スロー ×${settings.slowFactor[d].toFixed(2)}`
+    return d === 'beginner' ? `${tol}。MISS でライフが減らない` : `${tol}。敵の速さ ×${settings.slowFactor[d].toFixed(2)}`
   }
 
   return (

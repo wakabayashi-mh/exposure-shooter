@@ -6,6 +6,7 @@ import { useMasterStore } from '../masterStore'
 import { buildPool, modeLabel, stageName, type PlayConfig, type PlayResult } from '../playConfig'
 import { usePlayStore } from '../playStore'
 import { useSettingsStore } from '../settingsStore'
+import { sfx } from '../sound'
 import { GameScene, type GameSceneData } from '../scenes/GameScene'
 import { GAME_HEIGHT, GAME_WIDTH } from '../scenes/projection'
 import { ControlPanel, TargetPanel, Toast, TopBar } from './Hud'
@@ -90,6 +91,15 @@ export function PlayScreen({ config, onFinish, onQuit }: Props) {
   }, [master.status, sceneData])
 
   const scene = () => gameRef.current?.scene.getScene('game') as GameScene | null | undefined
+
+  // ダイヤルの値が変わったらカチッと鳴らす
+  useEffect(
+    () =>
+      usePlayStore.subscribe((s, prev) => {
+        if (s.params !== prev.params && !Number.isNaN(prev.params.kv)) sfx.tick()
+      }),
+    [],
+  )
 
   // マウス・タッチ
   // マウス：ホバーでロックオン、左ボタン長押しで準備（画面のどこでも）。
